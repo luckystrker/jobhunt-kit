@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "skills": {
+    "hirify": {
+      "source": "hirifyme/hirify-cli",
+      "sourceType": "github",
+      "skillPath": "skills/hirify/SKILL.md",
+      "computedHash": "3d2af02d9ba08b33ada07214f93375e8e7419858eec09b1fc46023093599c389"
+    }
+  }
+}

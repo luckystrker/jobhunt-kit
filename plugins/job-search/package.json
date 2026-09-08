@@ -1,0 +1,8 @@
+{
+  "name": "job-search-agent-template",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=24.0.0" },
+  "dependencies": { "hirify-cli": "0.4.5" }
+}

@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "confirmed_at": null,
+  "identity": {
+    "name": null, "email": null, "phone": null, "city": null,
+    "country": null, "timezone": null, "contact_links": []
+  },
+  "search": {
+    "roles": [], "levels": [], "countries": [], "work_modes": [],
+    "employment_types": [], "industries": [], "excluded_companies": [],
+    "excluded_keywords": [], "relocation": null, "travel": null,
+    "working_hours": null, "work_authorization": [], "sponsorship": null,
+    "salary": { "min": null, "target": null, "currency": null, "period": null, "tax_basis": null },
+    "hard_constraints": [], "preferences": [],
+    "unknown_salary": "ask", "unknown_critical_requirement": "ask",
+    "feed_ids": [], "queries": []
+  },
+  "languages": [],
+  "experience": [],
+  "education": [],
+  "skills": [],
+  "achievements": [],
+  "evidence": [],
+  "answers": [],
+  "availability": { "notice_period": null, "start_date": null, "interview_hours": null },
+  "writing": { "resume_languages": [], "cover_languages": [], "tone": null, "motivation": null },
+  "hirify_profile_id": null,
+  "resume": { "path": null, "sha256": null, "review_status": "not_reviewed" }
+}

@@ -1,0 +1,6 @@
+{
+  "schema_version": 1,
+  "mode": "review_each",
+  "search": { "target": 5, "max_cards": 100, "max_reads": 20, "max_reveals": 5, "max_minutes": 15 },
+  "auto": null
+}

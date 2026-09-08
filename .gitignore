@@ -1,0 +1,22 @@
+node_modules/
+*.log
+.env
+.DS_Store
+
+# All candidate information and generated materials stay local.
+local/
+.env.*
+!.env.example
+**/node_modules/
+*.sqlite*
+*.db
+*.db-*
+*.pdf
+*.docx
+*.doc
+*.rtf
+*.zip
+.claude/settings.local.json
+__pycache__/
+.tmp/
+*.tgz

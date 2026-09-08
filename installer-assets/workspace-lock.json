@@ -1,0 +1,33 @@
+{
+  "name": "job-search",
+  "lockfileVersion": 3,
+  "requires": true,
+  "packages": {
+    "": {
+      "name": "job-search",
+      "engines": {
+        "node": ">=24.0.0"
+      },
+      "version": "0.1.0",
+      "bin": {
+        "job-search": "bin/job-search.mjs"
+      },
+      "dependencies": {
+        "hirify-cli": "0.4.5"
+      }
+    },
+    "node_modules/hirify-cli": {
+      "version": "0.4.5",
+      "resolved": "https://registry.npmjs.org/hirify-cli/-/hirify-cli-0.4.5.tgz",
+      "integrity": "sha512-dyuZTXk25d5d5RA8CxnT9RQTnK+GBU6P/ke4roOPJz3PQTVhobPDN8O+A9PdFISwpxNW3EiCfS996U362ZRnNw==",
+      "license": "Apache-2.0",
+      "bin": {
+        "hirify": "bin/hirify.js"
+      },
+      "engines": {
+        "node": ">=18"
+      }
+    }
+  },
+  "version": "0.1.0"
+}
