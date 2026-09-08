@@ -5,6 +5,11 @@ description: Draft evidence-based cover letters and application answers, obtain 
 
 # Отклик на вакансию
 
+Использовать [CLI](../../references/cli.md): apply prepare/preview/export/approve,
+begin/send/finish/resolve. Begin сохраняет attempt-файл и возвращает packet_path;
+send принимает именно этот файл. Смысл письма и разрешение остаются обязанностью
+агента и пользователя; CLI переиспользует проверки tracker, а не заменяет их.
+
 Прочитать [workflow](../../references/workflow.md),
 [Hirify applying rules](../../references/hirify/SKILL.md),
 [cover guidance](../../references/cover-guidance.md) и

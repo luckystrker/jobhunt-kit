@@ -1,12 +1,14 @@
 {
   "name": "job-search-template",
-  "owner": { "name": "Job Search contributors" },
+  "owner": {
+    "name": "Job Search contributors"
+  },
   "plugins": [
     {
       "name": "job-search",
       "source": "./plugins/job-search",
       "description": "Candidate intake, resume review, Hirify search and local tracking",
-      "version": "0.1.0"
+      "version": "0.2.0"
     }
   ]
 }

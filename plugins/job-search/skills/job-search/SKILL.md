@@ -5,6 +5,11 @@ description: Find up to five new suitable vacancies through Hirify using a confi
 
 # Поиск подходящих вакансий
 
+Использовать [CLI](../../references/cli.md): search создаёт контекст и задание для
+агента, search start/event/record/finish сохраняют цикл поиска. Команда search сама
+не вызывает живой поиск; продолжить через Hirify по инструкции ниже. Не объявлять
+сохранение контекста завершённым поиском вакансий.
+
 Прочитать [workflow](../../references/workflow.md),
 [matching](../../references/matching.md), [команды трекера](../../references/storage.md)
 и [Hirify](../../references/hirify/SKILL.md). Определить P/D.

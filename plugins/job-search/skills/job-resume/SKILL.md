@@ -5,6 +5,12 @@ description: Review a job-search resume for factual consistency, readability, pa
 
 # Проверка резюме
 
+Начать с [CLI](../../references/cli.md): `resume <file>` импортирует версию и извлекает
+текст PDF/DOCX/TXT/MD; `resume check` сохраняет механическую диагностику и review.md.
+Не переписывать вручную логику копирования/хеширования. Проверить text_extraction и
+findings; затем отдельно оценить вёрстку и факты. После реальной проверки записать
+результат через resume reviewed --input; команда не выполняет эти проверки за агента.
+
 Прочитать [workflow](../../references/workflow.md) и
 [процедуру с источниками](../../references/resume-guidance.md).
 Получить текущий файл, целевую роль, рынок и profile.json; не подставлять цели

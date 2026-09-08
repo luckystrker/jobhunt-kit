@@ -1,8 +1,14 @@
 {
   "name": "job-search-agent-template",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "type": "module",
-  "engines": { "node": ">=24.0.0" },
-  "dependencies": { "hirify-cli": "0.4.5" }
+  "engines": {
+    "node": ">=24.0.0"
+  },
+  "dependencies": {
+    "hirify-cli": "0.4.5",
+    "mammoth": "1.12.2",
+    "pdf-parse": "2.4.5"
+  }
 }

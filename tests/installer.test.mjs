@@ -1,6 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { existsSync, mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync, symlinkSync, unlinkSync } from 'node:fs';
+import { spawnSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
 import { join, resolve, sep } from 'node:path';
 import { install } from '../bin/job-search.mjs';
@@ -37,4 +38,15 @@ test('conflicting file stops before copying any files', t => {
   assert.throws(() => install(path, { installDependencies: false }), /Existing file differs/);
   assert.equal(existsSync(join(path, 'plugins')), false);
   assert.equal(readFileSync(join(path, 'README.md'), 'utf8'), 'Existing user document');
+});
+test('CLI executes through the package link used by npm exec', t => {
+  const path = target(t);
+  symlinkSync(resolve('.'), path, process.platform === 'win32' ? 'junction' : 'dir');
+  try {
+    const result = spawnSync(process.execPath, [join(path, 'bin/job-search.mjs'), 'doctor', '--workspace', join(path, '..', 'empty')], { encoding: 'utf8' });
+    assert.equal(result.status, 0, result.stderr);
+    assert.equal(JSON.parse(result.stdout).initialized, false);
+  } finally {
+    unlinkSync(path);
+  }
 });

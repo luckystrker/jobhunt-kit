@@ -5,6 +5,10 @@ description: Initialize or update a reusable job-search profile from a resume an
 
 # Профиль поиска работы
 
+Детерминированные операции выполнять [командами CLI](../../references/cli.md):
+profile init, check, save --input, confirm --note. Они сохраняют историю и сбрасывают
+устаревшее подтверждение. Confirm не заменяет реальное согласие кандидата.
+
 Прочитать [общий workflow](../../references/workflow.md). Определить P и D.
 При разработке/демонстрации шаблона не запрашивать реальные данные и не открывать аккаунт.
 

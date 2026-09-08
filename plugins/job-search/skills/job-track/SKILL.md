@@ -5,6 +5,10 @@ description: Show local job-search history and reports, record user-reported app
 
 # История и дальнейшие шаги
 
+Использовать [CLI](../../references/cli.md): track list/show/status, history, runs,
+report и schedule --input. Schedule формирует текст с конкретными путями/часовой
+зоной, но не создаёт задачу. Не переписывать таблицу истории вручную.
+
 Прочитать [workflow](../../references/workflow.md) и [storage](../../references/storage.md).
 Для обзора выполнить list, runs, history и report; для вакансии — show <slug>.
 Показывать статус, дату, основания, источник обновления и следующий шаг.
