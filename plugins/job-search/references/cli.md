@@ -1,9 +1,9 @@
 # Команды рабочих сценариев
 
-Установка: `npx github:luckystrker/job-search install [папка]`.
+Установка: `npx jobhunt-kit install [папка]`.
 Без пути создаётся `./my-job-search`. Старый `init <папка>` также поддерживается.
-Из установленной папки: `npx job-search <команда>`.
-Из другой папки: `npx github:luckystrker/job-search <команда> --workspace <папка>`.
+Из установленной папки: `npx jobhunt-kit <команда>`.
+Из другой папки: `npx jobhunt-kit <команда> --workspace <папка>`.
 
 В переносимом плагине доступны те же рабочие команды:
 `node <P>/scripts/cli.mjs <команда> --data <D>`. Для работы непосредственно в исходниках:
@@ -28,15 +28,15 @@
 ## Профиль и резюме
 
 ```text
-npx job-search doctor
-npx job-search profile init
-npx job-search profile show
-npx job-search profile check
-npx job-search profile save --input local/job-search/materials/profile-draft.json
-npx job-search profile confirm --note "Пользователь подтвердил перечисленные факты и условия"
-npx job-search resume ./resume.pdf
-npx job-search resume check
-npx job-search resume reviewed --input local/job-search/materials/review-result.json
+npx jobhunt-kit doctor
+npx jobhunt-kit profile init
+npx jobhunt-kit profile show
+npx jobhunt-kit profile check
+npx jobhunt-kit profile save --input local/job-search/materials/profile-draft.json
+npx jobhunt-kit profile confirm --note "Пользователь подтвердил перечисленные факты и условия"
+npx jobhunt-kit resume ./resume.pdf
+npx jobhunt-kit resume check
+npx jobhunt-kit resume reviewed --input local/job-search/materials/review-result.json
 ```
 
 `doctor` проверяет только локальное окружение; не читает аккаунт и не создаёт профиль.
@@ -73,19 +73,19 @@ PDF/DOCX обрабатываются локально в дочернем пр�
 ## Поиск и отклики
 
 ```text
-npx job-search search
-npx job-search search start --input run.json
-npx job-search search event --input event.json
-npx job-search search record --input vacancy.json
-npx job-search search finish --input result.json
-npx job-search apply prepare --input draft.json
-npx job-search apply preview vacancy-slug
-npx job-search apply export vacancy-slug
-npx job-search apply approve --input approval.json
-npx job-search apply begin vacancy-slug
-npx job-search apply send --input local/job-search/materials/attempt-UUID.json
-npx job-search apply finish --input response.json
-npx job-search apply resolve --input verified-outcome.json
+npx jobhunt-kit search
+npx jobhunt-kit search start --input run.json
+npx jobhunt-kit search event --input event.json
+npx jobhunt-kit search record --input vacancy.json
+npx jobhunt-kit search finish --input result.json
+npx jobhunt-kit apply prepare --input draft.json
+npx jobhunt-kit apply preview vacancy-slug
+npx jobhunt-kit apply export vacancy-slug
+npx jobhunt-kit apply approve --input approval.json
+npx jobhunt-kit apply begin vacancy-slug
+npx jobhunt-kit apply send --input local/job-search/materials/attempt-UUID.json
+npx jobhunt-kit apply finish --input response.json
+npx jobhunt-kit apply resolve --input verified-outcome.json
 ```
 
 `search` готовит search-context.json и search-task.md для агента; **живой поиск ещё
@@ -103,15 +103,15 @@ packet_path. `send` — единственная рабочая команда �
 ## История, политика и расписание
 
 ```text
-npx job-search track
-npx job-search track show vacancy-slug
-npx job-search track status vacancy-slug --input status.json
-npx job-search history
-npx job-search runs
-npx job-search report
-npx job-search policy show
-npx job-search policy set --input permission.json
-npx job-search schedule --input schedule.json
+npx jobhunt-kit track
+npx jobhunt-kit track show vacancy-slug
+npx jobhunt-kit track status vacancy-slug --input status.json
+npx jobhunt-kit history
+npx jobhunt-kit runs
+npx jobhunt-kit report
+npx jobhunt-kit policy show
+npx jobhunt-kit policy set --input permission.json
+npx jobhunt-kit schedule --input schedule.json
 ```
 
 status.json: `{"status":"interview","note":"Источник и дата сообщения кандидата"}`.

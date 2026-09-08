@@ -1,9 +1,8 @@
 {
-  "name": "job-search",
+  "name": "jobhunt-kit",
   "version": "0.2.0",
-  "private": true,
   "bin": {
-    "job-search": "bin/job-search.mjs"
+    "jobhunt-kit": "bin/job-search.mjs"
   },
   "files": [
     "bin/",
@@ -19,7 +18,8 @@
   "scripts": {
     "hirify": "hirify",
     "test": "node --test tests/*.test.mjs",
-    "check": "node scripts/check-package.mjs"
+    "check": "node scripts/check-package.mjs",
+    "prepublishOnly": "npm test && npm run check"
   },
   "engines": {
     "node": ">=24.0.0"
@@ -28,5 +28,25 @@
     "hirify-cli": "0.4.5",
     "mammoth": "1.12.2",
     "pdf-parse": "2.4.5"
+  },
+  "description": "Job search skills and local workflow tools for AI agents: profiles, resumes, applications and tracking.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/luckystrker/jobhunt-kit.git"
+  },
+  "homepage": "https://github.com/luckystrker/jobhunt-kit#readme",
+  "bugs": {
+    "url": "https://github.com/luckystrker/jobhunt-kit/issues"
+  },
+  "keywords": [
+    "job-search",
+    "resume",
+    "career",
+    "ai-agent",
+    "hirify"
+  ],
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
   }
 }

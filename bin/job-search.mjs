@@ -63,16 +63,16 @@ export function install(destination, { source = SOURCE, installDependencies = tr
   }
   const binDir = join(target, 'node_modules', '.bin');
   noSymlinks(binDir);
-  noSymlinks(join(binDir, 'job-search.cmd'));
-  noSymlinks(join(binDir, 'job-search'));
+  noSymlinks(join(binDir, 'jobhunt-kit.cmd'));
+  noSymlinks(join(binDir, 'jobhunt-kit'));
   mkdirSync(binDir, { recursive: true });
-  writeFileSync(join(binDir, 'job-search.cmd'), '@echo off\r\nnode "%~dp0..\\..\\bin\\job-search.mjs" %*\r\n');
-  writeFileSync(join(binDir, 'job-search'), '#!/bin/sh\nexec node "$(dirname "$0")/../../bin/job-search.mjs" "$@"\n', { mode: 0o755 });
+  writeFileSync(join(binDir, 'jobhunt-kit.cmd'), '@echo off\r\nnode "%~dp0..\\..\\bin\\job-search.mjs" %*\r\n');
+  writeFileSync(join(binDir, 'jobhunt-kit'), '#!/bin/sh\nexec node "$(dirname "$0")/../../bin/job-search.mjs" "$@"\n', { mode: 0o755 });
   return { directory: target, copied: pending.length, dependencies_installed: installDependencies };
 }
 export async function main(args) {
   if (args.length === 0 || args.includes('--help') || args.includes('-h')) {
-    console.log('Usage: job-search <command> [arguments] [--workspace dir | --data dir]\n\ninstall [directory]              Install template (default: ./my-job-search)\ninit <directory>                 Alias with an explicit destination\nprofile init|show|check          Initialize/view/validate local profile\nprofile save --input file        Save profile and clear confirmation\nprofile confirm --note text      Record explicit candidate confirmation\nresume [file]                   Import file, fingerprint and mechanical checks\nresume check|reviewed            Inspect file / record agent review (--input file)\nsearch [plan]                   Prepare context for agent; no live search\nsearch start|event|record|finish  Persist search operations (--input file)\napply preview|export|begin slug  Review/export/reserve application\napply prepare|approve|send|finish|resolve --input file\ntrack list|show slug|status slug --input file\nhistory | runs | report          Inspect history or generate Markdown report\npolicy show|set --input file     Inspect/set application policy\nschedule --input file            Generate scheduler prompt; does not schedule\ndoctor                          Check local setup without network\n\nNode.js 24+ required. Default data: ./local/job-search. Only apply send performs a live application call.');
+    console.log('Usage: jobhunt-kit <command> [arguments] [--workspace dir | --data dir]\n\ninstall [directory]              Install template (default: ./my-job-search)\ninit <directory>                 Alias with an explicit destination\nprofile init|show|check          Initialize/view/validate local profile\nprofile save --input file        Save profile and clear confirmation\nprofile confirm --note text      Record explicit candidate confirmation\nresume [file]                   Import file, fingerprint and mechanical checks\nresume check|reviewed            Inspect file / record agent review (--input file)\nsearch [plan]                   Prepare context for agent; no live search\nsearch start|event|record|finish  Persist search operations (--input file)\napply preview|export|begin slug  Review/export/reserve application\napply prepare|approve|send|finish|resolve --input file\ntrack list|show slug|status slug --input file\nhistory | runs | report          Inspect history or generate Markdown report\npolicy show|set --input file     Inspect/set application policy\nschedule --input file            Generate scheduler prompt; does not schedule\ndoctor                          Check local setup without network\n\nNode.js 24+ required. Default data: ./local/job-search. Only apply send performs a live application call.');
     return;
   }
   if (!['init', 'install'].includes(args[0])) {
@@ -84,12 +84,12 @@ export async function main(args) {
     return;
   }
   if (args.length > 2 || (args[0] === 'init' && !args[1]) || args[1]?.startsWith('-')) {
-    throw new Error('Usage: job-search install [directory] (default: ./my-job-search), or job-search init <directory>');
+    throw new Error('Usage: jobhunt-kit install [directory] (default: ./my-job-search), or job-search init <directory>');
   }
   const result = install(args[1] || './my-job-search');
-  console.log(`\nJob Search ready: ${result.directory}\nCopied files: ${result.copied}\nOpen this folder in Codex or Claude Code and ask: use job-profile to initialize my profile.\nWhen needed, sign in yourself from that folder: npm run hirify -- login\nNo profile, schedule, search or application was created.`);
+  console.log(`\nJobhunt Kit ready: ${result.directory}\nCopied files: ${result.copied}\nOpen this folder in Codex or Claude Code and ask: use job-profile to initialize my profile.\nWhen needed, sign in yourself from that folder: npm run hirify -- login\nNo profile, schedule, search or application was created.`);
 }
 if (process.argv[1] && import.meta.url === pathToFileURL(realpathSync(process.argv[1])).href) {
   try { await main(process.argv.slice(2)); }
-  catch (e) { console.error(`job-search: ${e.message}`); process.exitCode = 1; }
+  catch (e) { console.error(`jobhunt-kit: ${e.message}`); process.exitCode = 1; }
 }

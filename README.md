@@ -1,7 +1,7 @@
-# Job Search
+# Jobhunt Kit
 
 ```sh
-npx github:luckystrker/job-search install
+npx jobhunt-kit install
 ```
 
 Поиск работы вместе с AI-агентом: профиль кандидата, проверка резюме, подбор вакансий
@@ -47,13 +47,13 @@ npx github:luckystrker/job-search install
 Запускайте из установленной папки:
 
 ```sh
-npx job-search doctor
-npx job-search profile init
-npx job-search resume ./resume.pdf
-npx job-search profile check
-npx job-search search
-npx job-search track
-npx job-search report
+npx jobhunt-kit doctor
+npx jobhunt-kit profile init
+npx jobhunt-kit resume ./resume.pdf
+npx jobhunt-kit profile check
+npx jobhunt-kit search
+npx jobhunt-kit track
+npx jobhunt-kit report
 ```
 
 `resume` извлекает текст PDF, DOCX, TXT или Markdown и готовит материалы для проверки

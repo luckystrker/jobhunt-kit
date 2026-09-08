@@ -1,4 +1,4 @@
-# Job Search template
+# Jobhunt Kit template
 
 This repository is a reusable template, not the owner's job search. Do not populate a
 real profile, call Hirify account/search APIs, apply, or schedule tasks while developing

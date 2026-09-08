@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Portable plugin entry point, equivalent to the workflow commands in npx job-search.
+// Portable plugin entry point, equivalent to the workflow commands in npx jobhunt-kit.
 import { runCommand } from './commands.mjs';
 try {
   const result = runCommand(process.argv.slice(2));

@@ -1,11 +1,11 @@
 {
-  "name": "job-search",
+  "name": "jobhunt-kit",
   "version": "0.2.0",
   "lockfileVersion": 3,
   "requires": true,
   "packages": {
     "": {
-      "name": "job-search",
+      "name": "jobhunt-kit",
       "version": "0.2.0",
       "dependencies": {
         "hirify-cli": "0.4.5",
@@ -13,7 +13,7 @@
         "pdf-parse": "2.4.5"
       },
       "bin": {
-        "job-search": "bin/job-search.mjs"
+        "jobhunt-kit": "bin/job-search.mjs"
       },
       "engines": {
         "node": ">=24.0.0"
