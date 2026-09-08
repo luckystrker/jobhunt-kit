@@ -72,10 +72,10 @@ export function install(destination, { source = SOURCE, installDependencies = tr
 }
 export async function main(args) {
   if (args.length === 0 || args.includes('--help') || args.includes('-h')) {
-    console.log('Usage: job-search <command> [arguments] [--workspace dir | --data dir]\n\ninit <directory>                 Install template + Hirify CLI\nprofile init|show|check          Initialize/view/validate local profile\nprofile save --input file        Save profile and clear confirmation\nprofile confirm --note text      Record explicit candidate confirmation\nresume [file]                   Import file, fingerprint and mechanical checks\nresume check|reviewed            Inspect file / record agent review (--input file)\nsearch [plan]                   Prepare context for agent; no live search\nsearch start|event|record|finish  Persist search operations (--input file)\napply preview|export|begin slug  Review/export/reserve application\napply prepare|approve|send|finish|resolve --input file\ntrack list|show slug|status slug --input file\nhistory | runs | report          Inspect history or generate Markdown report\npolicy show|set --input file     Inspect/set application policy\nschedule --input file            Generate scheduler prompt; does not schedule\ndoctor                          Check local setup without network\n\nNode.js 24+ required. Default data: ./local/job-search. Only apply send performs a live application call.');
+    console.log('Usage: job-search <command> [arguments] [--workspace dir | --data dir]\n\ninstall [directory]              Install template (default: ./my-job-search)\ninit <directory>                 Alias with an explicit destination\nprofile init|show|check          Initialize/view/validate local profile\nprofile save --input file        Save profile and clear confirmation\nprofile confirm --note text      Record explicit candidate confirmation\nresume [file]                   Import file, fingerprint and mechanical checks\nresume check|reviewed            Inspect file / record agent review (--input file)\nsearch [plan]                   Prepare context for agent; no live search\nsearch start|event|record|finish  Persist search operations (--input file)\napply preview|export|begin slug  Review/export/reserve application\napply prepare|approve|send|finish|resolve --input file\ntrack list|show slug|status slug --input file\nhistory | runs | report          Inspect history or generate Markdown report\npolicy show|set --input file     Inspect/set application policy\nschedule --input file            Generate scheduler prompt; does not schedule\ndoctor                          Check local setup without network\n\nNode.js 24+ required. Default data: ./local/job-search. Only apply send performs a live application call.');
     return;
   }
-  if (args[0] !== 'init') {
+  if (!['init', 'install'].includes(args[0])) {
     const { runCommand } = await import('../plugins/job-search/scripts/commands.mjs');
     const result = runCommand(args);
     console.log(JSON.stringify(result, null, 2));
@@ -83,8 +83,10 @@ export async function main(args) {
     if (result?.attempt_id && Object.hasOwn(result, 'exit_code')) process.exitCode = result.exit_code ?? 1;
     return;
   }
-  if (args.length !== 2 || !args[1]) throw new Error('Usage: job-search init <directory>');
-  const result = install(args[1]);
+  if (args.length > 2 || (args[0] === 'init' && !args[1]) || args[1]?.startsWith('-')) {
+    throw new Error('Usage: job-search install [directory] (default: ./my-job-search), or job-search init <directory>');
+  }
+  const result = install(args[1] || './my-job-search');
   console.log(`\nJob Search ready: ${result.directory}\nCopied files: ${result.copied}\nOpen this folder in Codex or Claude Code and ask: use job-profile to initialize my profile.\nWhen needed, sign in yourself from that folder: npm run hirify -- login\nNo profile, schedule, search or application was created.`);
 }
 if (process.argv[1] && import.meta.url === pathToFileURL(realpathSync(process.argv[1])).href) {
