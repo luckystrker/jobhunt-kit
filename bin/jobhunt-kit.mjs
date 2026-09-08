@@ -5,6 +5,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { spawnSync } from 'node:child_process';
 import { homedir } from 'node:os';
 import { installOptions } from './install-options.mjs';
+import { AGENTS, skillDirectory } from './agents.mjs';
 
 const SOURCE = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const roots = ['bin', 'installer-assets', 'plugins/jobhunt-kit', 'scripts', 'tests',
@@ -26,9 +27,9 @@ function noSymlinks(path) {
     current = parent;
   }
 }
-export function install(destination, { source = SOURCE, installDependencies = true, agents = [], scope = 'project', home = homedir() } = {}) {
+export function install(destination, { source = SOURCE, installDependencies = true, agents = [], scope = 'project', home = homedir(), env = process.env } = {}) {
   if (Number(process.versions.node.split('.')[0]) < 24) throw new Error('Node.js 24 or newer is required');
-  if (!['project', 'global'].includes(scope) || agents.some(a => !['codex', 'claude'].includes(a))) throw new Error('Invalid installation scope or agents');
+  if (!['project', 'global'].includes(scope) || agents.some(a => !AGENTS.some(p=>p.id===a))) throw new Error('Invalid installation scope or agents');
   if (scope === 'global' && !agents.length) throw new Error('Global installation requires at least one agent');
   const target = resolve(scope === 'global' ? home : destination);
   source = resolve(source);
@@ -43,7 +44,7 @@ export function install(destination, { source = SOURCE, installDependencies = tr
   }
   const destinations = [];
   for (const agent of [...new Set(agents)]) {
-    const native = join(agent === 'codex' ? '.agents' : '.claude', 'skills', 'jobhunt-kit');
+    const native = relative(target,skillDirectory(agent,{scope,home:resolve(home),cwd:scope==='project'?target:process.cwd(),env}));
     destinations.push({agent, path: join(target, native)});
     files.set(join(native, 'SKILL.md'), join(source, 'installer-assets/native-SKILL.md'));
     const plugin = join(source, 'plugins/jobhunt-kit');
@@ -87,8 +88,13 @@ export function install(destination, { source = SOURCE, installDependencies = tr
   return { directory: target, copied: pending.length, dependencies_installed: installDependencies, scope, agents: destinations };
 }
 export async function main(args) {
+  if (args[0] === 'agents') {
+    if (args.length!==1) throw new Error('Usage: jobhunt-kit agents');
+    console.log(AGENTS.map(a=>`${a.id.padEnd(14)} ${a.name}${a.globalOnly?' (global only)':''}`).join('\n'));
+    return;
+  }
   if (args.length === 0 || args.includes('--help') || args.includes('-h')) {
-    console.log('Usage: jobhunt-kit <command> [arguments] [--workspace dir | --data dir]\n\ninstall [directory]              Choose agents and install (default: ./my-jobhunt)\n  --agents codex,claude          Select agents without prompts\n  --scope project|global        Workspace skills or user-wide skills\n  --yes, -y                     Use detected agents and project scope\ninit <directory>                 Alias with an explicit destination\nprofile init|show|check          Initialize/view/validate local profile\nprofile save --input file        Save profile and clear confirmation\nprofile confirm --note text      Record explicit candidate confirmation\nresume [file]                   Import file, fingerprint and mechanical checks\nresume check|reviewed            Inspect file / record agent review (--input file)\nsearch [plan]                   Prepare context for agent; no live search\nsearch start|event|record|finish  Persist search operations (--input file)\napply preview|export|begin slug  Review/export/reserve application\napply prepare|approve|send|finish|resolve --input file\ntrack list|show slug|status slug --input file\nhistory | runs | report          Inspect history or generate Markdown report\npolicy show|set --input file     Inspect/set application policy\nschedule --input file            Generate scheduler prompt; does not schedule\ndoctor                          Check local setup without network\n\nNode.js 24+ required. Default data: ./local/jobhunt-kit. Only apply send performs a live application call.');
+    console.log('Usage: jobhunt-kit <command> [arguments] [--workspace dir | --data dir]\n\ninstall [directory]              Choose agents and install (default: ./my-jobhunt)\n  --agents codex,cursor,...      Select agents (or all); --providers is an alias\n  agents                        List supported agents\n  --scope project|global        Workspace skills or user-wide skills\n  --yes, -y                     Use detected agents and project scope\ninit <directory>                 Alias with an explicit destination\nprofile init|show|check          Initialize/view/validate local profile\nprofile save --input file        Save profile and clear confirmation\nprofile confirm --note text      Record explicit candidate confirmation\nresume [file]                   Import file, fingerprint and mechanical checks\nresume check|reviewed            Inspect file / record agent review (--input file)\nsearch [plan]                   Prepare context for agent; no live search\nsearch start|event|record|finish  Persist search operations (--input file)\napply preview|export|begin slug  Review/export/reserve application\napply prepare|approve|send|finish|resolve --input file\ntrack list|show slug|status slug --input file\nhistory | runs | report          Inspect history or generate Markdown report\npolicy show|set --input file     Inspect/set application policy\nschedule --input file            Generate scheduler prompt; does not schedule\ndoctor                          Check local setup without network\n\nNode.js 24+ required. Default data: ./local/jobhunt-kit. Only apply send performs a live application call.');
     return;
   }
   if (!['init', 'install'].includes(args[0])) {
@@ -107,6 +113,7 @@ export async function main(args) {
   const result = install(options.destination, options);
   console.log(`\nJobhunt Kit ready: ${result.directory}\nCopied files: ${result.copied}`);
   for (const agent of result.agents) console.log(`${agent.agent}: ${agent.path}`);
+  if (result.scope==='project' && result.agents.some(a=>a.agent==='hermes')) console.log('Hermes: run hermes skills trust from this workspace before using project skills.');
   console.log(result.scope === 'global' ? 'Open your working folder in a new agent session.' : 'Open this folder in a new agent session.');
   console.log('Ask: use jobhunt-kit to initialize my job search profile.\nNo profile, schedule, search or application was created.');
 }

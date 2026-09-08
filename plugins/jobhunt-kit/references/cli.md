@@ -1,6 +1,8 @@
 # Команды рабочих сценариев
 
-Установка: `npx jobhunt-kit install [папка]` с выбором Codex/Claude Code и области.
+Установка: `npx jobhunt-kit install [папка]` с выбором агентов и области.
+Список: `npx jobhunt-kit agents`. Все для выбранной области: `--agents all`.
+`--providers` поддерживается как синоним `--agents`.
 Без вопросов: `npx jobhunt-kit install --agents codex,claude --scope project`.
 Глобально: `npx jobhunt-kit install --agents claude --scope global` (без пути).
 В глобальном режиме устанавливаются только навыки; зависимости и данные создаёт

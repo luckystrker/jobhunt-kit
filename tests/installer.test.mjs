@@ -6,6 +6,7 @@ import { tmpdir } from 'node:os';
 import { join, resolve, sep } from 'node:path';
 import { install } from '../bin/jobhunt-kit.mjs';
 import { installOptions } from '../bin/install-options.mjs';
+import { AGENTS, parseAgents, skillDirectory, detectAgents } from '../bin/agents.mjs';
 
 function target(t) {
   const path = mkdtempSync(join(tmpdir(), 'job-search-install-'));
@@ -113,4 +114,41 @@ test('global skill can initialize separate data and generate a schedule with per
   const result=run(['schedule','--input',input]);
   assert.equal(result.scheduled,false);
   assert.ok(readFileSync(result.path,'utf8').includes(join(home,'.agents/skills/jobhunt-kit/bundle')));
+});
+test('all supported harnesses receive complete bundles at their project and global paths', t => {
+  const project=target(t), home=target(t);
+  const projectAgents=AGENTS.filter(a=>!a.globalOnly).map(a=>a.id);
+  install(project,{agents:projectAgents,installDependencies:false,env:{}});
+  install('unused',{agents:AGENTS.map(a=>a.id),scope:'global',home,env:{}});
+  const expected={github:'.copilot/skills',opencode:'.config/opencode/skills',antigravity:'.gemini/config/skills',pi:'.pi/agent/skills'};
+  for(const a of AGENTS){
+    const global=join(home,expected[a.id] || `${a.dir}/skills`,'jobhunt-kit');
+    assert.ok(existsSync(join(global,'SKILL.md')),a.id);
+    assert.ok(existsSync(join(global,'bundle/scripts/setup.mjs')),a.id);
+    if(!a.globalOnly) assert.ok(existsSync(join(project,a.dir,'skills/jobhunt-kit/SKILL.md')),a.id);
+  }
+  assert.equal(existsSync(join(project,'.veto')),false);
+});
+test('provider aliases and all work in flags and interactive selection', async () => {
+  assert.deepEqual(parseAgents('copilot,github,.claude,claude-code,deepseek'),['github','claude','dsh']);
+  const quiet={input:{isTTY:false},output:{isTTY:false}};
+  const project=await installOptions(['--providers','all'],quiet);
+  assert.equal(project.agents.length,17); assert.equal(project.agents.includes('veto'),false);
+  const global=await installOptions(['--agents','all','--scope','global'],quiet);
+  assert.equal(global.agents.length,18);
+  await assert.rejects(installOptions(['--agents','veto'],quiet),/global/);
+  await assert.rejects(installOptions(['--agents','codex','--providers','cursor'],quiet),/either/);
+  const answers=['all','project'];
+  assert.equal((await installOptions([],{output:{write(){}},ask:async()=>answers.shift()})).agents.length,17);
+});
+test('custom global configuration directories are detected and cannot escape home', t => {
+  const home=target(t),cwd=target(t);
+  const env={OPENCODE_CONFIG_DIR:join(home,'custom/open'),HERMES_HOME:join(home,'custom/hermes'),DSH_HOME:join(home,'custom/dsh')};
+  for(const p of Object.values(env)) mkdirSync(p,{recursive:true});
+  for(const id of ['opencode','hermes','dsh']) assert.ok(detectAgents({home,cwd,env}).includes(id));
+  assert.equal(skillDirectory('opencode',{home,cwd,env,scope:'global'}),join(env.OPENCODE_CONFIG_DIR,'skills/jobhunt-kit'));
+  assert.equal(skillDirectory('opencode',{home,cwd,env:{XDG_CONFIG_HOME:join(home,'xdg')},scope:'global'}),join(home,'xdg/opencode/skills/jobhunt-kit'));
+  assert.throws(()=>skillDirectory('hermes',{home,cwd,env:{HERMES_HOME:home+'-sibling'},scope:'global'}),/inside the home/);
+  assert.throws(()=>install('unused',{home,scope:'global',agents:['codex','opencode'],env:{OPENCODE_CONFIG_DIR:cwd}}),/inside the home/);
+  assert.equal(existsSync(join(home,'.agents')),false);
 });

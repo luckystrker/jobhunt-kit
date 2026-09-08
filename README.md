@@ -7,7 +7,7 @@ npx jobhunt-kit install
 Поиск работы вместе с AI-агентом: профиль кандидата, проверка резюме, подбор вакансий
 через Hirify, сопроводительные письма и история откликов.
 
-Нужны **Node.js 24+ и Codex или Claude Code**. Установщик предложит выбрать
+Нужны **Node.js 24+ и агент с поддержкой навыков**. Установщик предложит выбрать
 агентов и область установки: рабочая папка или глобально для пользователя.
 При установке в рабочую папку он создаст `my-jobhunt`, установит зависимости
 и подключит навык к выбранным агентам. Другой путь: `install ./my-folder`.
@@ -84,21 +84,51 @@ npx jobhunt-kit report
 Без интерактивных вопросов:
 
 ```sh
-npx jobhunt-kit install --agents codex,claude
-npx jobhunt-kit install --agents codex
-npx jobhunt-kit install --agents claude --scope global
+npx jobhunt-kit install --agents codex,cursor,gemini
+npx jobhunt-kit install --agents all
+npx jobhunt-kit install --providers opencode,pi --scope global
+npx jobhunt-kit agents
 ```
 
-В режиме `project` навыки устанавливаются в созданную рабочую папку:
-Codex — `.agents/skills/jobhunt-kit`, Claude Code — `.claude/skills/jobhunt-kit`.
-В режиме `global` используются те же каталоги в домашней папке пользователя;
-рабочая папка и профиль создаются позже при обращении к агенту.
+В режиме `project` навык устанавливается в созданную рабочую папку,
+в режиме `global` — в домашнюю папку пользователя.
+
+| Агент | Значение `--agents` | Рабочая папка | Глобально (от `~`) |
+|---|---|---|---|
+| Codex | `codex` | `.agents/skills/` | `.agents/skills/` |
+| Claude Code | `claude` | `.claude/skills/` | `.claude/skills/` |
+| Cursor | `cursor` | `.cursor/skills/` | `.cursor/skills/` |
+| Gemini CLI | `gemini` | `.gemini/skills/` | `.gemini/skills/` |
+| GitHub Copilot | `github` | `.github/skills/` | `.copilot/skills/` |
+| OpenCode | `opencode` | `.opencode/skills/` | `.config/opencode/skills/` |
+| Antigravity | `antigravity` | `.agent/skills/` | `.gemini/config/skills/` |
+| Pi | `pi` | `.pi/skills/` | `.pi/agent/skills/` |
+| Grok Build | `grok` | `.grok/skills/` | `.grok/skills/` |
+| Hermes Agent | `hermes` | `.hermes/skills/` | `.hermes/skills/` |
+| DeepSeek Harness | `dsh` | `.dsh/skills/` | `.dsh/skills/` |
+| Kiro | `kiro` | `.kiro/skills/` | `.kiro/skills/` |
+| Qoder | `qoder` | `.qoder/skills/` | `.qoder/skills/` |
+| Trae | `trae` | `.trae/skills/` | `.trae/skills/` |
+| Trae CN | `trae-cn` | `.trae-cn/skills/` | `.trae-cn/skills/` |
+| Rovo Dev | `rovo-dev` | `.rovodev/skills/` | `.rovodev/skills/` |
+| Mistral Vibe | `vibe` | `.vibe/skills/` | `.vibe/skills/` |
+| Veto | `veto` | — | `.veto/skills/` |
+
+В каждом каталоге создаётся отдельная папка `jobhunt-kit` с навыком и его ресурсами.
+`--agents all` выбирает всех агентов для указанной области; Veto доступен только
+глобально. `--providers` — синоним `--agents`. Можно использовать имена
+`copilot`, `claude-code`, `deepseek` и `grok-build`.
+
+OpenCode учитывает `OPENCODE_CONFIG_DIR` и `XDG_CONFIG_HOME`; Hermes и DeepSeek —
+`HERMES_HOME` и `DSH_HOME`. Глобальные пути должны находиться в домашней папке.
+При установке Hermes в проект выполните `hermes skills trust` в рабочей папке.
+В остальных агентах при необходимости включите поддержку навыков и доверие к проекту.
 
 После установки откройте новую сессию и попросите использовать **jobhunt-kit**.
 В Claude Code можно вызвать `/jobhunt-kit`. Отдельные команды marketplace
 и `--plugin-dir` для этого способа не нужны.
 
-`--yes` выбирает обнаруженных агентов (или обоих, если ничего не обнаружено)
+`--yes` выбирает обнаруженных агентов (или Codex и Claude Code, если ничего не обнаружено)
 и область `project`. Обнаружение использует каталоги агентов, а не запускает их.
 Для скриптов задавайте `--agents` и `--scope` явно.
 

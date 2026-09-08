@@ -1,12 +1,12 @@
 {
   "name": "jobhunt-kit-plugin",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "lockfileVersion": 3,
   "requires": true,
   "packages": {
     "": {
       "name": "jobhunt-kit-plugin",
-      "version": "0.3.0",
+      "version": "0.4.0",
       "dependencies": {
         "hirify-cli": "0.4.5",
         "mammoth": "1.12.2",
