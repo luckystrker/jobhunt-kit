@@ -22,4 +22,4 @@ try {
     if (r.error || r.status !== 0) throw new Error(r.error?.message || 'npm ci failed; no sign-in or search was attempted');
   }
   console.log(JSON.stringify({ ...result, cli_install_requested: Boolean(install), authenticated: false }, null, 2));
-} catch (e) { console.error(`job-search: ${e.message}`); process.exitCode = 1; }
+} catch (e) { console.error(`jobhunt-kit: ${e.message}`); process.exitCode = 1; }

@@ -5,10 +5,10 @@
   },
   "plugins": [
     {
-      "name": "job-search",
+      "name": "jobhunt-kit",
       "source": {
         "source": "local",
-        "path": "./plugins/job-search"
+        "path": "./plugins/jobhunt-kit"
       },
       "policy": {
         "installation": "AVAILABLE",

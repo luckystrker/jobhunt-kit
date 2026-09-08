@@ -5,8 +5,8 @@ import { join, resolve } from 'node:path';
 import { tmpdir } from 'node:os';
 import { createHash } from 'node:crypto';
 import { spawnSync } from 'node:child_process';
-import { Tracker, initData } from '../plugins/job-search/scripts/tracker.mjs';
-import { sendPacket } from '../plugins/job-search/scripts/send-packet.mjs';
+import { Tracker, initData } from '../plugins/jobhunt-kit/scripts/tracker.mjs';
+import { sendPacket } from '../plugins/jobhunt-kit/scripts/send-packet.mjs';
 
 function fixture(t, ready = true) {
   const dir = mkdtempSync(join(tmpdir(), 'job-search-test-'));
@@ -173,7 +173,7 @@ test('CLI report and run history work from a fresh process', t => {
   const run = store.runStart({ query: 'synthetic' });
   store.runEvent({ run_id: run.run_id, kind: 'preview', data: { count: 0 } });
   store.runFinish({ run_id: run.run_id, status: 'complete', reason: 'No fictional matches' });
-  const cli = resolve('plugins/job-search/scripts/tracker.mjs');
+  const cli = resolve('plugins/jobhunt-kit/scripts/tracker.mjs');
   const r = spawnSync(process.execPath, [cli, '--data', dir, 'report'], { encoding: 'utf8' });
   assert.equal(r.status, 0, r.stderr);
   assert.match(JSON.parse(r.stdout).content, /No fictional matches/);

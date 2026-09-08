@@ -1,16 +1,16 @@
 {
-  "name": "job-search",
+  "name": "jobhunt-kit",
   "version": "0.2.0",
   "description": "Reusable candidate intake, resume review, Hirify search and local application tracking",
   "author": {
-    "name": "Job Search contributors"
+    "name": "Jobhunt Kit contributors"
   },
   "skills": "./skills/",
   "interface": {
-    "displayName": "Job Search",
+    "displayName": "Jobhunt Kit",
     "shortDescription": "Plan and track a job search with Hirify.",
     "longDescription": "Initialize a candidate profile, review resumes, match vacancies and prepare applications with a local SQLite history.",
-    "developerName": "Job Search contributors",
+    "developerName": "Jobhunt Kit contributors",
     "category": "Productivity",
     "capabilities": [],
     "defaultPrompt": "Help me initialize my job search profile."

@@ -5,8 +5,8 @@ import { tmpdir } from 'node:os';
 import { join, resolve, sep, dirname } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { createRequire } from 'node:module';
-import { runCommand } from '../plugins/job-search/scripts/commands.mjs';
-import { validateProfile } from '../plugins/job-search/scripts/profile.mjs';
+import { runCommand } from '../plugins/jobhunt-kit/scripts/commands.mjs';
+import { validateProfile } from '../plugins/jobhunt-kit/scripts/profile.mjs';
 
 function fixture(t) {
   const cwd = mkdtempSync(join(tmpdir(), 'job-search-command-'));
@@ -16,7 +16,7 @@ function fixture(t) {
   });
   const call = (...args) => runCommand(args, { cwd });
   const input = (data, name = 'input.json') => { writeFileSync(join(cwd, name), JSON.stringify(data)); return name; };
-  return { cwd, call, input, dir: join(cwd, 'local/job-search') };
+  return { cwd, call, input, dir: join(cwd, 'local/jobhunt-kit') };
 }
 function ready(f) {
   f.call('profile', 'init');
@@ -97,16 +97,16 @@ test('application commands preserve approval, export and exactly-one dispatch gu
 });
 test('schedule generates prompt with persistent workspace paths and never grants auto', t => {
   const f=fixture(t); f.call('profile','init');
-  const plugin=join(f.cwd,'plugins/job-search/skills/job-search'); mkdirSync(plugin,{recursive:true}); writeFileSync(join(plugin,'SKILL.md'),'Fictional path fixture');
+  const plugin=join(f.cwd,'plugins/jobhunt-kit/skills/job-search'); mkdirSync(plugin,{recursive:true}); writeFileSync(join(plugin,'SKILL.md'),'Fictional path fixture');
   const r=f.call('schedule','--input',f.input({frequency:'Every weekday at 9',timezone:'UTC',mode:'auto'}));
   assert.equal(r.scheduled,false); assert.equal(r.auto_permission_granted,false);
-  assert.ok(readFileSync(r.path,'utf8').includes(join(f.cwd,'plugins/job-search')));
+  assert.ok(readFileSync(r.path,'utf8').includes(join(f.cwd,'plugins/jobhunt-kit')));
   assert.equal(f.call('policy').mode,'review_each');
   assert.throws(()=>f.call('schedule','--input',f.input({frequency:'daily',timezone:'invalid-zone',mode:'search'})));
 });
 test('CLI uses requested workspace independently of package working directory', t => {
   const f=fixture(t);
-  const r=spawnSync(process.execPath,[resolve('bin/job-search.mjs'),'doctor','--workspace',f.cwd],{encoding:'utf8'});
+  const r=spawnSync(process.execPath,[resolve('bin/jobhunt-kit.mjs'),'doctor','--workspace',f.cwd],{encoding:'utf8'});
   assert.equal(r.status,0,r.stderr);
   assert.equal(JSON.parse(r.stdout).workspace,f.cwd);
   assert.equal(existsSync(f.dir),false);

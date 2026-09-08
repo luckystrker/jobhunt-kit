@@ -1,12 +1,12 @@
 {
-  "name": "job-search-template",
+  "name": "jobhunt-kit-marketplace",
   "owner": {
-    "name": "Job Search contributors"
+    "name": "Jobhunt Kit contributors"
   },
   "plugins": [
     {
-      "name": "job-search",
-      "source": "./plugins/job-search",
+      "name": "jobhunt-kit",
+      "source": "./plugins/jobhunt-kit",
       "description": "Candidate intake, resume review, Hirify search and local tracking",
       "version": "0.2.0"
     }

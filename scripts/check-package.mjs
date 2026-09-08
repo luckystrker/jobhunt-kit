@@ -2,7 +2,7 @@ import { readFileSync, readdirSync, existsSync } from 'node:fs';
 import { resolve, dirname, join } from 'node:path';
 import assert from 'node:assert/strict';
 
-const root = resolve('plugins/job-search');
+const root = resolve('plugins/jobhunt-kit');
 function walk(dir) {
   return readdirSync(dir, { withFileTypes: true }).flatMap(e => e.name === 'node_modules' ? [] : e.isDirectory() ? walk(join(dir, e.name)) : [join(dir, e.name)]);
 }
@@ -31,7 +31,7 @@ assert.equal(load(join(root, 'templates/policy.json')).mode, 'review_each');
 assert.equal(load(join(root, 'templates/policy.json')).auto, null);
 const codex = load(join(root, '.codex-plugin/plugin.json'));
 const claude = load(join(root, '.claude-plugin/plugin.json'));
-assert.equal(codex.name, 'job-search'); assert.equal(claude.name, codex.name);
+assert.equal(codex.name, 'jobhunt-kit'); assert.equal(claude.name, codex.name);
 assert.equal(codex.version, claude.version);
 for (const file of ['.agents/plugins/marketplace.json', '.claude-plugin/marketplace.json']) {
   const market = load(file);
@@ -57,6 +57,6 @@ for (const folder of ['.', root]) {
 for (const [source, asset] of [
   ['.gitignore', 'installer-assets/gitignore.txt'],
   ['package-lock.json', 'installer-assets/workspace-lock.json'],
-  ['plugins/job-search/package-lock.json', 'installer-assets/runtime-lock.json']
+  ['plugins/jobhunt-kit/package-lock.json', 'installer-assets/runtime-lock.json']
 ]) assert.ok(readFileSync(source).equals(readFileSync(asset)), `Installer asset drift: ${asset}`);
 console.log(`PACKAGE_OK: ${skills.length} skills, ${files.length} plugin files, valid JSON, local links, empty profile, disabled auto, pinned dependency`);

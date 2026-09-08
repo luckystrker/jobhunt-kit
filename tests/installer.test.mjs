@@ -4,7 +4,7 @@ import { existsSync, mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync
 import { spawnSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
 import { join, resolve, sep } from 'node:path';
-import { install } from '../bin/job-search.mjs';
+import { install } from '../bin/jobhunt-kit.mjs';
 
 function target(t) {
   const path = mkdtempSync(join(tmpdir(), 'job-search-install-'));
@@ -18,8 +18,8 @@ test('installs a complete template, including npm-omitted files, without persona
   const path = target(t);
   const result = install(path, { installDependencies: false });
   assert.ok(result.copied > 30);
-  for (const name of ['.gitignore', 'package-lock.json', 'plugins/job-search/package-lock.json',
-    '.agents/plugins/marketplace.json', '.claude-plugin/marketplace.json', 'plugins/job-search/skills/job-profile/SKILL.md']) assert.ok(existsSync(join(path, name)), name);
+  for (const name of ['.gitignore', 'package-lock.json', 'plugins/jobhunt-kit/package-lock.json',
+    '.agents/plugins/marketplace.json', '.claude-plugin/marketplace.json', 'plugins/jobhunt-kit/skills/job-profile/SKILL.md']) assert.ok(existsSync(join(path, name)), name);
   assert.equal(existsSync(join(path, 'local')), false);
   assert.equal(existsSync(join(path, '.git')), false);
 });
@@ -43,7 +43,7 @@ test('CLI executes through the package link used by npm exec', t => {
   const path = target(t);
   symlinkSync(resolve('.'), path, process.platform === 'win32' ? 'junction' : 'dir');
   try {
-    const result = spawnSync(process.execPath, [join(path, 'bin/job-search.mjs'), 'doctor', '--workspace', join(path, '..', 'empty')], { encoding: 'utf8' });
+    const result = spawnSync(process.execPath, [join(path, 'bin/jobhunt-kit.mjs'), 'doctor', '--workspace', join(path, '..', 'empty')], { encoding: 'utf8' });
     assert.equal(result.status, 0, result.stderr);
     assert.equal(JSON.parse(result.stdout).initialized, false);
   } finally {

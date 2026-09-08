@@ -7,7 +7,7 @@ the template. Use temporary directories and clearly fictional fixtures for valid
 When the user requests a job search, initialize their local data through job-profile.
 Keep personal files under local/ (gitignored), never in plugins/ or examples/.
 
-The portable plugin is plugins/job-search. For job-search use, read the relevant entry:
+The portable plugin is plugins/jobhunt-kit. For job-search use, read the relevant entry:
 
 - skills/job-profile/SKILL.md — initialize/update candidate and reusable answers.
 - skills/job-resume/SKILL.md — evidence-based resume review.
@@ -15,7 +15,7 @@ The portable plugin is plugins/job-search. For job-search use, read the relevant
 - skills/job-apply/SKILL.md — cover letter, approval, sending, manual handoff.
 - skills/job-track/SKILL.md — local statuses, reports and optional schedule setup.
 
-All paths above are relative to plugins/job-search. Shared rules are in
+All paths above are relative to plugins/jobhunt-kit. Shared rules are in
 references/workflow.md. SQLite is authoritative for vacancy/application history;
 profile.json is authoritative for candidate facts. Markdown summaries are derived.
 

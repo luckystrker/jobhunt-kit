@@ -328,5 +328,5 @@ export function main(args) {
 }
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
   try { console.log(JSON.stringify(main(process.argv.slice(2)), null, 2)); }
-  catch (e) { console.error(`job-search: ${e.message}`); process.exitCode = 1; }
+  catch (e) { console.error(`jobhunt-kit: ${e.message}`); process.exitCode = 1; }
 }

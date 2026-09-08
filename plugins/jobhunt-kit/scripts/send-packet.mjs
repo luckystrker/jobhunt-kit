@@ -32,5 +32,5 @@ if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1]
     const result = sendPacket(data, JSON.parse(readFileSync(path, 'utf8').replace(/^\uFEFF/, '')));
     console.log(JSON.stringify(result, null, 2));
     process.exitCode = result.exit_code ?? 1;
-  } catch (e) { console.error(`job-search: ${e.message}`); process.exitCode = 1; }
+  } catch (e) { console.error(`jobhunt-kit: ${e.message}`); process.exitCode = 1; }
 }

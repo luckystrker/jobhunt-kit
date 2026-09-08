@@ -8,12 +8,12 @@ npx jobhunt-kit install
 через Hirify, сопроводительные письма и история откликов.
 
 Нужны **Node.js 24+, Git и Codex или Claude Code**. Установщик создаст папку
-`my-job-search` и установит зависимости. Чтобы выбрать другую папку, добавьте путь
+`my-jobhunt` и установит зависимости. Чтобы выбрать другую папку, добавьте путь
 в конце команды: `install ./my-folder`.
 
 ## Начало работы
 
-1. Откройте `my-job-search` в агенте.
+1. Откройте `my-jobhunt` в агенте.
 2. Напишите: **«Инициализируй мой профиль поиска работы»**. Агент запросит резюме,
    уточнит опыт, предпочтения и условия поиска.
 3. В терминале этой папки выполните `npm run hirify -- login` для входа в Hirify.
@@ -28,11 +28,11 @@ npx jobhunt-kit install
 
 | Навык | Что делает |
 |---|---|
-| [job-profile](plugins/job-search/skills/job-profile/SKILL.md) | Собирает профиль, предпочтения и ответы на вопросы анкет |
-| [job-resume](plugins/job-search/skills/job-resume/SKILL.md) | Проверяет содержание, читаемость и соответствие резюме выбранным ролям |
-| [job-search](plugins/job-search/skills/job-search/SKILL.md) | Подбирает до пяти новых подходящих вакансий за запуск и объясняет выбор |
-| [job-apply](plugins/job-search/skills/job-apply/SKILL.md) | Готовит письмо и отправляет согласованный отклик через Hirify |
-| [job-track](plugins/job-search/skills/job-track/SKILL.md) | Ведёт историю, обновляет статусы и помогает настроить поиск по расписанию |
+| [job-profile](plugins/jobhunt-kit/skills/job-profile/SKILL.md) | Собирает профиль, предпочтения и ответы на вопросы анкет |
+| [job-resume](plugins/jobhunt-kit/skills/job-resume/SKILL.md) | Проверяет содержание, читаемость и соответствие резюме выбранным ролям |
+| [job-search](plugins/jobhunt-kit/skills/job-search/SKILL.md) | Подбирает до пяти новых подходящих вакансий за запуск и объясняет выбор |
+| [job-apply](plugins/jobhunt-kit/skills/job-apply/SKILL.md) | Готовит письмо и отправляет согласованный отклик через Hirify |
+| [job-track](plugins/jobhunt-kit/skills/job-track/SKILL.md) | Ведёт историю, обновляет статусы и помогает настроить поиск по расписанию |
 
 По умолчанию каждый отклик согласуется отдельно. Автоматическую отправку можно
 включить с ограничением срока и количества откликов. Для внешних форм агент готовит
@@ -60,11 +60,11 @@ npx jobhunt-kit report
 агентом. `search` собирает контекст для агента, который выполняет поиск и оценивает
 вакансии. Команды также позволяют управлять профилем, черновиками и статусами.
 
-[Справочник команд](plugins/job-search/references/cli.md).
+[Справочник команд](plugins/jobhunt-kit/references/cli.md).
 
 ## Локальные данные
 
-Профиль, резюме и история хранятся в `local/job-search/`:
+Профиль, резюме и история хранятся в `local/jobhunt-kit/`:
 
 | Путь | Содержимое |
 |---|---|
@@ -87,7 +87,7 @@ npx jobhunt-kit report
 
 ```sh
 codex plugin marketplace add .
-codex plugin add job-search@personal
+codex plugin add jobhunt-kit@personal
 ```
 
 После установки начните новую сессию. `personal` — имя каталога плагинов,
@@ -96,11 +96,11 @@ codex plugin add job-search@personal
 **Claude Code** — для текущей сессии:
 
 ```sh
-claude --plugin-dir ./plugins/job-search
+claude --plugin-dir ./plugins/jobhunt-kit
 ```
 
-Вызов навыка: `/job-search:job-profile`. Для постоянной установки используйте
-`/plugin marketplace add .`, затем `/plugin install job-search@job-search-template`.
+Вызов навыка: `/jobhunt-kit:job-profile`. Для постоянной установки используйте
+`/plugin marketplace add .`, затем `/plugin install jobhunt-kit@jobhunt-kit-marketplace`.
 
 При отдельной установке плагина агент подготовит локальные зависимости во время
 инициализации профиля. Вход в Hirify выполняется отдельно.
@@ -115,8 +115,8 @@ npm run check
 
 Тесты работают с вымышленными данными и не отправляют реальные отклики.
 
-Руководства: [формат данных](plugins/job-search/references/storage.md),
-[проверка резюме](plugins/job-search/references/resume-guidance.md),
-[сопроводительные письма](plugins/job-search/references/cover-guidance.md).
+Руководства: [формат данных](plugins/jobhunt-kit/references/storage.md),
+[проверка резюме](plugins/jobhunt-kit/references/resume-guidance.md),
+[сопроводительные письма](plugins/jobhunt-kit/references/cover-guidance.md).
 
 Автор этого шаблона никак не аффилирован с Hirify.

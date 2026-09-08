@@ -1,15 +1,15 @@
 # Команды рабочих сценариев
 
 Установка: `npx jobhunt-kit install [папка]`.
-Без пути создаётся `./my-job-search`. Старый `init <папка>` также поддерживается.
+Без пути создаётся `./my-jobhunt`. Старый `init <папка>` также поддерживается.
 Из установленной папки: `npx jobhunt-kit <команда>`.
 Из другой папки: `npx jobhunt-kit <команда> --workspace <папка>`.
 
 В переносимом плагине доступны те же рабочие команды:
 `node <P>/scripts/cli.mjs <команда> --data <D>`. Для работы непосредственно в исходниках:
-`node bin/job-search.mjs <команда>`. Тексты JSON писать в файлы, не собирать строкой shell.
+`node bin/jobhunt-kit.mjs <команда>`. Тексты JSON писать в файлы, не собирать строкой shell.
 Все рабочие команды возвращают JSON; исключения — help и установщик. Ошибка даёт
-ненулевой exit. Данные по умолчанию — `<workspace>/local/job-search`.
+ненулевой exit. Данные по умолчанию — `<workspace>/local/jobhunt-kit`.
 
 ## Команды и работа агента
 
@@ -32,11 +32,11 @@ npx jobhunt-kit doctor
 npx jobhunt-kit profile init
 npx jobhunt-kit profile show
 npx jobhunt-kit profile check
-npx jobhunt-kit profile save --input local/job-search/materials/profile-draft.json
+npx jobhunt-kit profile save --input local/jobhunt-kit/materials/profile-draft.json
 npx jobhunt-kit profile confirm --note "Пользователь подтвердил перечисленные факты и условия"
 npx jobhunt-kit resume ./resume.pdf
 npx jobhunt-kit resume check
-npx jobhunt-kit resume reviewed --input local/job-search/materials/review-result.json
+npx jobhunt-kit resume reviewed --input local/jobhunt-kit/materials/review-result.json
 ```
 
 `doctor` проверяет только локальное окружение; не читает аккаунт и не создаёт профиль.
@@ -83,7 +83,7 @@ npx jobhunt-kit apply preview vacancy-slug
 npx jobhunt-kit apply export vacancy-slug
 npx jobhunt-kit apply approve --input approval.json
 npx jobhunt-kit apply begin vacancy-slug
-npx jobhunt-kit apply send --input local/job-search/materials/attempt-UUID.json
+npx jobhunt-kit apply send --input local/jobhunt-kit/materials/attempt-UUID.json
 npx jobhunt-kit apply finish --input response.json
 npx jobhunt-kit apply resolve --input verified-outcome.json
 ```

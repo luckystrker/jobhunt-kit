@@ -5,7 +5,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { spawnSync } from 'node:child_process';
 
 const SOURCE = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const roots = ['bin', 'installer-assets', 'plugins/job-search', 'scripts', 'tests',
+const roots = ['bin', 'installer-assets', 'plugins/jobhunt-kit', 'scripts', 'tests',
   'AGENTS.md', 'CLAUDE.md', 'README.md', 'package.json',
   '.agents/plugins/marketplace.json', '.claude-plugin/marketplace.json'];
 function collect(path) {
@@ -34,7 +34,7 @@ export function install(destination, { source = SOURCE, installDependencies = tr
   // npm omits package-lock.json and may omit .gitignore; ship them under explicit asset names.
   files.set('.gitignore', join(source, 'installer-assets/gitignore.txt'));
   files.set('package-lock.json', join(source, 'installer-assets/workspace-lock.json'));
-  files.set('plugins/job-search/package-lock.json', join(source, 'installer-assets/runtime-lock.json'));
+  files.set('plugins/jobhunt-kit/package-lock.json', join(source, 'installer-assets/runtime-lock.json'));
   const pending = [];
   for (const [name, input] of files) {
     const output = join(target, name);
@@ -66,17 +66,17 @@ export function install(destination, { source = SOURCE, installDependencies = tr
   noSymlinks(join(binDir, 'jobhunt-kit.cmd'));
   noSymlinks(join(binDir, 'jobhunt-kit'));
   mkdirSync(binDir, { recursive: true });
-  writeFileSync(join(binDir, 'jobhunt-kit.cmd'), '@echo off\r\nnode "%~dp0..\\..\\bin\\job-search.mjs" %*\r\n');
-  writeFileSync(join(binDir, 'jobhunt-kit'), '#!/bin/sh\nexec node "$(dirname "$0")/../../bin/job-search.mjs" "$@"\n', { mode: 0o755 });
+  writeFileSync(join(binDir, 'jobhunt-kit.cmd'), '@echo off\r\nnode "%~dp0..\\..\\bin\\jobhunt-kit.mjs" %*\r\n');
+  writeFileSync(join(binDir, 'jobhunt-kit'), '#!/bin/sh\nexec node "$(dirname "$0")/../../bin/jobhunt-kit.mjs" "$@"\n', { mode: 0o755 });
   return { directory: target, copied: pending.length, dependencies_installed: installDependencies };
 }
 export async function main(args) {
   if (args.length === 0 || args.includes('--help') || args.includes('-h')) {
-    console.log('Usage: jobhunt-kit <command> [arguments] [--workspace dir | --data dir]\n\ninstall [directory]              Install template (default: ./my-job-search)\ninit <directory>                 Alias with an explicit destination\nprofile init|show|check          Initialize/view/validate local profile\nprofile save --input file        Save profile and clear confirmation\nprofile confirm --note text      Record explicit candidate confirmation\nresume [file]                   Import file, fingerprint and mechanical checks\nresume check|reviewed            Inspect file / record agent review (--input file)\nsearch [plan]                   Prepare context for agent; no live search\nsearch start|event|record|finish  Persist search operations (--input file)\napply preview|export|begin slug  Review/export/reserve application\napply prepare|approve|send|finish|resolve --input file\ntrack list|show slug|status slug --input file\nhistory | runs | report          Inspect history or generate Markdown report\npolicy show|set --input file     Inspect/set application policy\nschedule --input file            Generate scheduler prompt; does not schedule\ndoctor                          Check local setup without network\n\nNode.js 24+ required. Default data: ./local/job-search. Only apply send performs a live application call.');
+    console.log('Usage: jobhunt-kit <command> [arguments] [--workspace dir | --data dir]\n\ninstall [directory]              Install template (default: ./my-jobhunt)\ninit <directory>                 Alias with an explicit destination\nprofile init|show|check          Initialize/view/validate local profile\nprofile save --input file        Save profile and clear confirmation\nprofile confirm --note text      Record explicit candidate confirmation\nresume [file]                   Import file, fingerprint and mechanical checks\nresume check|reviewed            Inspect file / record agent review (--input file)\nsearch [plan]                   Prepare context for agent; no live search\nsearch start|event|record|finish  Persist search operations (--input file)\napply preview|export|begin slug  Review/export/reserve application\napply prepare|approve|send|finish|resolve --input file\ntrack list|show slug|status slug --input file\nhistory | runs | report          Inspect history or generate Markdown report\npolicy show|set --input file     Inspect/set application policy\nschedule --input file            Generate scheduler prompt; does not schedule\ndoctor                          Check local setup without network\n\nNode.js 24+ required. Default data: ./local/jobhunt-kit. Only apply send performs a live application call.');
     return;
   }
   if (!['init', 'install'].includes(args[0])) {
-    const { runCommand } = await import('../plugins/job-search/scripts/commands.mjs');
+    const { runCommand } = await import('../plugins/jobhunt-kit/scripts/commands.mjs');
     const result = runCommand(args);
     console.log(JSON.stringify(result, null, 2));
     if (result && Object.hasOwn(result, 'valid') && result.valid === false) process.exitCode = 1;
@@ -84,9 +84,9 @@ export async function main(args) {
     return;
   }
   if (args.length > 2 || (args[0] === 'init' && !args[1]) || args[1]?.startsWith('-')) {
-    throw new Error('Usage: jobhunt-kit install [directory] (default: ./my-job-search), or job-search init <directory>');
+    throw new Error('Usage: jobhunt-kit install [directory] (default: ./my-jobhunt), or jobhunt-kit init <directory>');
   }
-  const result = install(args[1] || './my-job-search');
+  const result = install(args[1] || './my-jobhunt');
   console.log(`\nJobhunt Kit ready: ${result.directory}\nCopied files: ${result.copied}\nOpen this folder in Codex or Claude Code and ask: use job-profile to initialize my profile.\nWhen needed, sign in yourself from that folder: npm run hirify -- login\nNo profile, schedule, search or application was created.`);
 }
 if (process.argv[1] && import.meta.url === pathToFileURL(realpathSync(process.argv[1])).href) {

@@ -2,12 +2,12 @@
   "name": "jobhunt-kit",
   "version": "0.2.0",
   "bin": {
-    "jobhunt-kit": "bin/job-search.mjs"
+    "jobhunt-kit": "bin/jobhunt-kit.mjs"
   },
   "files": [
     "bin/",
     "installer-assets/",
-    "plugins/job-search/",
+    "plugins/jobhunt-kit/",
     "scripts/",
     "tests/",
     "AGENTS.md",

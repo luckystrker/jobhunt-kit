@@ -48,7 +48,7 @@ function searchContext(dir, workspace) {
     const path = join(dir, 'materials', 'search-context.json');
     writeJSON(path, context);
     const task = join(dir, 'materials', 'search-task.md');
-    const localPlugin = join(workspace, 'plugins', 'job-search');
+    const localPlugin = join(workspace, 'plugins', 'jobhunt-kit');
     const plugin = existsSync(join(localPlugin, 'skills', 'job-search', 'SKILL.md')) ? localPlugin : ROOT;
     writeFileSync(task, `Use job-search at ${join(plugin, 'skills', 'job-search', 'SKILL.md')}.\nRead ${path} and ${join(dir, 'profile.json')}.\nCheck live Hirify quotas and filter guide, preview filters, then search. Record runs and observations using the CLI.\nNo live search has been performed by this context command.\n`);
     return { ...context, context_path: path, task_path: task };
@@ -58,7 +58,7 @@ function scheduleTemplate(dir, workspace, input) {
   if (!['search', 'prepare', 'auto'].includes(input.mode)) throw new Error('Schedule mode must be search, prepare or auto');
   required(input.frequency, 'frequency'); required(input.timezone, 'timezone');
   new Intl.DateTimeFormat('en', { timeZone: input.timezone });
-  const plugin = join(workspace, 'plugins', 'job-search');
+  const plugin = join(workspace, 'plugins', 'jobhunt-kit');
   if (!existsSync(join(plugin, 'skills', 'job-search', 'SKILL.md'))) throw new Error('Schedule needs an installed workspace; pass --workspace to avoid storing an npm cache path');
   const template = readFileSync(join(ROOT, 'templates', 'scheduled-search.md'), 'utf8');
   let prompt = template;
@@ -73,7 +73,7 @@ export function runCommand(args, { cwd = process.cwd(), transport } = {}) {
   const { values: flags, positionals: pos } = parseArgs({ args, allowPositionals: true, strict: true,
     options: { data: { type: 'string' }, workspace: { type: 'string' }, input: { type: 'string' }, note: { type: 'string' } } });
   const workspace = resolve(cwd, flags.workspace || '.');
-  const dir = resolve(cwd, flags.data || join(workspace, 'local', 'job-search'));
+  const dir = resolve(cwd, flags.data || join(workspace, 'local', 'jobhunt-kit'));
   const input = () => readJSON(resolve(cwd, required(flags.input, '--input <json-file>')));
   const [command, action, argument] = pos;
   if (pos.length > 3) throw new Error('Too many arguments');

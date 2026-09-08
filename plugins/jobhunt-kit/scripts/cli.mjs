@@ -6,4 +6,4 @@ try {
   console.log(JSON.stringify(result, null, 2));
   if (result && Object.hasOwn(result, 'valid') && result.valid === false) process.exitCode = 1;
   if (result?.attempt_id && Object.hasOwn(result, 'exit_code')) process.exitCode = result.exit_code ?? 1;
-} catch (error) { console.error(`job-search: ${error.message}`); process.exitCode = 1; }
+} catch (error) { console.error(`jobhunt-kit: ${error.message}`); process.exitCode = 1; }
