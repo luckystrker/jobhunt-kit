@@ -4,7 +4,7 @@ This repository is a reusable template, not the owner's job search. Do not popul
 real profile, call Hirify account/search APIs, apply, or schedule tasks while developing
 the template. Use temporary directories and clearly fictional fixtures for validation.
 
-Active scope: PLAN.md. User requests to use the template later may initialize local data.
+When the user requests a job search, initialize their local data through job-profile.
 Keep personal files under local/ (gitignored), never in plugins/ or examples/.
 
 The portable plugin is plugins/job-search. For job-search use, read the relevant entry:

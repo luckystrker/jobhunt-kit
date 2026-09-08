@@ -13,8 +13,6 @@
     "tests/",
     "AGENTS.md",
     "CLAUDE.md",
-    "PLAN.md",
-    "VERIFICATION.md",
     ".agents/plugins/marketplace.json",
     ".claude-plugin/marketplace.json"
   ],

@@ -6,7 +6,7 @@ import { spawnSync } from 'node:child_process';
 
 const SOURCE = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const roots = ['bin', 'installer-assets', 'plugins/job-search', 'scripts', 'tests',
-  'AGENTS.md', 'CLAUDE.md', 'PLAN.md', 'README.md', 'VERIFICATION.md', 'package.json',
+  'AGENTS.md', 'CLAUDE.md', 'README.md', 'package.json',
   '.agents/plugins/marketplace.json', '.claude-plugin/marketplace.json'];
 function collect(path) {
   const stat = lstatSync(path);
