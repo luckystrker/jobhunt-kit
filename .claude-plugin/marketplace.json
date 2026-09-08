@@ -8,7 +8,7 @@
       "name": "jobhunt-kit",
       "source": "./plugins/jobhunt-kit",
       "description": "Candidate intake, resume review, Hirify search and local tracking",
-      "version": "0.2.0"
+      "version": "0.3.0"
     }
   ]
 }

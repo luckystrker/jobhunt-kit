@@ -1,6 +1,6 @@
 import { parseArgs } from 'node:util';
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs';
-import { resolve, join, dirname } from 'node:path';
+import { resolve, join, dirname, basename } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
 import { Tracker, initData } from './tracker.mjs';
@@ -58,7 +58,10 @@ function scheduleTemplate(dir, workspace, input) {
   if (!['search', 'prepare', 'auto'].includes(input.mode)) throw new Error('Schedule mode must be search, prepare or auto');
   required(input.frequency, 'frequency'); required(input.timezone, 'timezone');
   new Intl.DateTimeFormat('en', { timeZone: input.timezone });
-  const plugin = join(workspace, 'plugins', 'jobhunt-kit');
+  let plugin = join(workspace, 'plugins', 'jobhunt-kit');
+  const native = basename(ROOT) === 'bundle' && basename(dirname(ROOT)) === 'jobhunt-kit'
+    && basename(dirname(dirname(ROOT))) === 'skills' && existsSync(join(dirname(ROOT), 'SKILL.md'));
+  if (!existsSync(join(plugin, 'skills', 'job-search', 'SKILL.md')) && native) plugin = ROOT;
   if (!existsSync(join(plugin, 'skills', 'job-search', 'SKILL.md'))) throw new Error('Schedule needs an installed workspace; pass --workspace to avoid storing an npm cache path');
   const template = readFileSync(join(ROOT, 'templates', 'scheduled-search.md'), 'utf8');
   let prompt = template;
