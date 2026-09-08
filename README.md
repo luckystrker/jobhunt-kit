@@ -118,3 +118,5 @@ npm run check
 Руководства: [формат данных](plugins/job-search/references/storage.md),
 [проверка резюме](plugins/job-search/references/resume-guidance.md),
 [сопроводительные письма](plugins/job-search/references/cover-guidance.md).
+
+Автор этого шаблона никак не аффилирован с Hirify.
