@@ -1,8 +1,9 @@
 #!/usr/bin/env node
 // Parser subprocess: local bytes only, bounded by parent timeout/memory/output limits.
-import { readFileSync, existsSync } from 'node:fs';
-import { extname, join, resolve } from 'node:path';
+import { existsSync } from 'node:fs';
+import { extname, join, relative, resolve } from 'node:path';
 import { createRequire } from 'node:module';
+import { localPath, MAX_RESUME_BYTES, readBytes } from './files.mjs';
 
 try {
   const [dir, file] = process.argv.slice(2);
@@ -10,7 +11,8 @@ try {
   const bundled = createRequire(import.meta.url);
   const runtime = existsSync(local) ? createRequire(local) : bundled;
   const load = name => { try { return runtime(name); } catch (error) { if (error.code !== 'MODULE_NOT_FOUND') throw error; return bundled(name); } };
-  const bytes = readFileSync(file);
+  const safeFile = localPath(dir, relative(resolve(dir), resolve(file)));
+  const bytes = readBytes(safeFile, { base: resolve(dir), maxBytes: MAX_RESUME_BYTES });
   let result;
   if (extname(file).toLowerCase() === '.pdf') {
     const { PDFParse } = load('pdf-parse');

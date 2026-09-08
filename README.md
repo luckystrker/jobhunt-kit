@@ -55,6 +55,11 @@ npx jobhunt-kit profile check
 npx jobhunt-kit search
 npx jobhunt-kit track
 npx jobhunt-kit report
+npx jobhunt-kit recover inspect
+npx jobhunt-kit recover packet <attempt_id>
+npx jobhunt-kit backup ../jobhunt-backup
+npx jobhunt-kit backup-verify ../jobhunt-backup
+npx jobhunt-kit privacy map
 ```
 
 `resume` извлекает текст PDF, DOCX, TXT или Markdown и готовит материалы для проверки
@@ -77,7 +82,17 @@ npx jobhunt-kit report
 | `reports/latest.md` | Сводный отчёт |
 
 Папка `local/` исключена из Git. Храните личные файлы в ней; для резервной копии
-сохраняйте всю папку при остановленных процессах. Данные на диске не зашифрованы.
+используйте `backup` и затем `backup-verify`. Restore принимает только проверяемую
+копию, требует точное подтверждение и предварительно делает сырой quarantine-снимок,
+который сохраняется даже тогда, когда текущие JSON или SQLite уже повреждены.
+Restore и очистка history всегда отзывают auto-разрешение и подтверждение профиля.
+Данные на диске не зашифрованы.
+
+`doctor` проверяет JSON Schema профиля/policy, SQLite integrity и foreign keys,
+незавершённые поиски/отправки и журнал атомарных файловых операций. `privacy map`
+показывает размещение PII; `privacy export`, `redact` и `purge` дают контролируемый
+экспорт и удаление. Redact/purge требуют точных подтверждений, а purge не запускается
+без отдельной резервной копии.
 
 ## Выбор агентов
 
@@ -142,12 +157,14 @@ OpenCode учитывает `OPENCODE_CONFIG_DIR` и `XDG_CONFIG_HOME`; Hermes �
 npm ci --ignore-scripts
 npm test
 npm run check
+npm run pack:smoke
 ```
 
 Тесты работают с вымышленными данными и не отправляют реальные отклики.
 
 Руководства: [формат данных](plugins/jobhunt-kit/references/storage.md),
 [проверка резюме](plugins/jobhunt-kit/references/resume-guidance.md),
-[сопроводительные письма](plugins/jobhunt-kit/references/cover-guidance.md).
+[сопроводительные письма](plugins/jobhunt-kit/references/cover-guidance.md),
+[карта приватных данных](plugins/jobhunt-kit/references/privacy.md).
 
 Автор этого шаблона никак не аффилирован с Hirify.

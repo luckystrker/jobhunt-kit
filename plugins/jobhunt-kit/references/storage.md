@@ -30,7 +30,8 @@ P/D — абсолютные пути из workflow.md. JSON-ответы ком
 Дата confirmed_at — ISO 8601. Profile-команда отдаёт hash текущего JSON для разрешения
 auto. Хеш зависит от сериализации объекта: изменение/перестановка ключей может
 потребовать нового согласования (консервативное поведение).
-resume.path — путь относительно D или абсолютный локальный; sha256 — байтов файла.
+resume.path — только относительный путь внутри D, штатно `resumes/<sha>.<ext>`;
+внешний файл сначала импортируется командой resume. sha256 — хеш байтов файла.
 Пример вычисления в PowerShell: `(Get-FileHash <file> -Algorithm SHA256).Hash.ToLower()`.
 readiness и confirmed — утверждения агента по фактической проверке, не автоматическая
 проверка истинности биографии. Не отмечать их только ради прохождения команды.
@@ -109,12 +110,17 @@ External или недостающие ответы → needs_user. После �
 можно dismissed. После отправки: interview / rejected / withdrawn / offer;
 из offer: accepted / declined / withdrawn. Status — локальная запись, не действие сервиса.
 
-Схема SQLite v1: runs, jobs, aliases, observations, attempts, dispatches, events.
+Схема SQLite v2: runs, jobs, aliases, observations, attempts, dispatches, events,
+file_revisions и pending_file_writes. Миграция v1→v2 сохраняет данные, закрывает
+старые дублирующиеся running runs, записывается в schema_migrations и добавляет
+immutable application snapshots.
 В attempts UNIQUE(job_id), в dispatches PRIMARY KEY(attempt_id): повтор не проходит
 после перезапуска процесса. Сбой после намерения требует ручного разбора.
 Нет универсальной транзакции между SQLite и Hirify: невозможно обещать exactly-once
 доставку через сеть. Здесь предотвращаются автоматические повторные отправки.
 
-Историю читать через команды. Для резервирования закрыть работающие процессы и
-сохранить весь D. Обновление схемы пока не требуется: это первая версия; будущий
-апгрейд обязан иметь явную миграцию и резервную копию.
+Историю читать через команды. Для резервирования использовать backup и backup-verify.
+Restore сначала создаёт сырой автоматический pre-restore quarantine-снимок, не требующий
+валидности текущих данных. Перед активацией восстановленной истории restore отзывает
+auto-разрешение и подтверждение профиля. Doctor проверяет JSON Schema,
+SQLite, foreign keys, незавершённые runs/attempts и журнал атомарных файловых операций.

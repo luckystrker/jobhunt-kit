@@ -20,3 +20,4 @@ local/
 __pycache__/
 .tmp/
 *.tgz
+plan/

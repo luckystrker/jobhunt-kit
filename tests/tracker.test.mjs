@@ -39,6 +39,7 @@ function vacancy(run, slug = 'fictional-a', route = 'hosted') {
 function prepare(store, slug = 'fictional-a', route = 'hosted') {
   const run = store.runStart({ query: 'fictional' });
   store.put(vacancy(run, slug, route));
+  store.runFinish({ run_id: run.run_id, status: 'complete', reason: 'Synthetic fixture recorded' });
   store.prepare({ slug, cover_letter: 'Fictional "cover"\n$(do not execute) `literal`', hirify_profile_id: 123,
     claims: [{ text: 'Fictional library experience', evidence_id: 'E1' }], answers: [], unresolved: [] });
 }
@@ -53,8 +54,10 @@ test('empty template blocks search and preserves user edits on re-init', t => {
   assert.equal(JSON.parse(readFileSync(join(f.dir, 'policy.json'))).mode, 'review_each');
   f.profile.identity.name = 'Fictional candidate';
   writeFileSync(f.profilePath, JSON.stringify(f.profile));
+  writeFileSync(join(f.dir, '.gitignore'), '*\n!keep-this-rule\n');
   initData(f.dir);
   assert.equal(JSON.parse(readFileSync(f.profilePath)).identity.name, 'Fictional candidate');
+  assert.match(readFileSync(join(f.dir, '.gitignore'), 'utf8'), /keep-this-rule/);
 });
 test('canonical URL deduplication persists and reimport preserves draft status', t => {
   const { store, dir } = fixture(t);

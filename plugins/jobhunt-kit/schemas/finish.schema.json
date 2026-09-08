@@ -1,0 +1,11 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "jobhunt-kit/finish",
+  "type": "object",
+  "required": ["attempt_id", "outcome", "evidence"],
+  "properties": {
+    "attempt_id": { "type": "string", "minLength": 1 }, "outcome": { "enum": ["submitted", "failed", "unknown"] },
+    "evidence": { "type": "string", "minLength": 1 }, "application_id": { "type": "string", "minLength": 1 }
+  },
+  "additionalProperties": true
+}

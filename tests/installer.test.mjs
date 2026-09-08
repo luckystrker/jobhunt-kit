@@ -1,12 +1,17 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { existsSync, mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync, symlinkSync, unlinkSync } from 'node:fs';
+import { cpSync, existsSync, mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync, symlinkSync, unlinkSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
 import { join, resolve, sep } from 'node:path';
 import { install } from '../bin/jobhunt-kit.mjs';
 import { installOptions } from '../bin/install-options.mjs';
 import { AGENTS, parseAgents, skillDirectory, detectAgents } from '../bin/agents.mjs';
+
+const VALIDATION_MODULES = ['ajv', 'fast-deep-equal', 'fast-uri', 'json-schema-traverse', 'require-from-string'];
+function installValidationFixture(bundle) {
+  for (const name of VALIDATION_MODULES) cpSync(resolve('node_modules', name), join(bundle, 'node_modules', name), { recursive: true });
+}
 
 function target(t) {
   const path = mkdtempSync(join(tmpdir(), 'job-search-install-'));
@@ -103,7 +108,9 @@ test('global skill can initialize separate data and generate a schedule with per
   const home=target(t);
   install('unused',{home,scope:'global',agents:['codex']});
   const workspace=join(home,'work'); mkdirSync(workspace);
-  const cli=join(home,'.agents/skills/jobhunt-kit/bundle/scripts/cli.mjs');
+  const bundle=join(home,'.agents/skills/jobhunt-kit/bundle');
+  installValidationFixture(bundle);
+  const cli=join(bundle,'scripts/cli.mjs');
   const run=args=>{
     const r=spawnSync(process.execPath,[cli,...args,'--workspace',workspace],{encoding:'utf8'});
     assert.equal(r.status,0,r.stderr);return JSON.parse(r.stdout);

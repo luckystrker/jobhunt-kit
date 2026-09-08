@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "jobhunt-kit/policy",
+  "type": "object",
+  "required": ["schema_version", "mode", "search", "auto"],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "mode": { "enum": ["review_each", "auto"] },
+    "search": {
+      "type": "object",
+      "required": ["target", "max_cards", "max_reads", "max_reveals", "max_minutes"],
+      "properties": {
+        "target": { "type": "integer", "minimum": 1 }, "max_cards": { "type": "integer", "minimum": 1 },
+        "max_reads": { "type": "integer", "minimum": 1 }, "max_reveals": { "type": "integer", "minimum": 0 },
+        "max_minutes": { "type": "integer", "minimum": 1 }
+      },
+      "additionalProperties": false
+    },
+    "auto": {
+      "anyOf": [
+        { "type": "null" },
+        {
+          "type": "object", "required": ["user_authorization", "profile_hash", "expires_at", "max_attempts_per_utc_day"],
+          "properties": {
+            "user_authorization": { "type": "string", "minLength": 1 },
+            "profile_hash": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+            "expires_at": { "type": "string", "format": "date-time" },
+            "max_attempts_per_utc_day": { "type": "integer", "minimum": 1 }
+          },
+          "additionalProperties": false
+        }
+      ]
+    }
+  },
+  "additionalProperties": false
+}

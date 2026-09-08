@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "jobhunt-kit/draft",
+  "type": "object",
+  "required": ["slug", "cover_letter", "hirify_profile_id", "claims", "answers", "unresolved"],
+  "properties": {
+    "slug": { "type": "string", "minLength": 1 }, "cover_letter": { "type": "string", "minLength": 1 },
+    "hirify_profile_id": { "type": ["integer", "null"], "minimum": 1 },
+    "claims": { "type": "array", "items": { "type": "object", "required": ["text", "evidence_id"], "properties": { "text": { "type": "string", "minLength": 1 }, "evidence_id": { "type": "string", "minLength": 1 } }, "additionalProperties": false } },
+    "answers": { "type": "array" }, "unresolved": { "type": "array", "items": { "type": "string", "minLength": 1 } }
+  },
+  "additionalProperties": true
+}

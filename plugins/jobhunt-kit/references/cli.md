@@ -25,7 +25,7 @@
 | job-resume | Копия по SHA-256, извлечение PDF/DOCX/TXT/MD, простые проверки текста, сохранение отчёта, запись завершённой проверки | Визуальная оценка, истинность фактов, соответствие роли и содержательные правки |
 | job-search | Сбор профиля, бюджетов и известных вакансий; журнал запусков/результатов, запрет второго активного запуска через CLI | Актуальные фильтры Hirify, preview, живой поиск, оценка требований и ранжирование |
 | job-apply | Снимок черновика, экспорт текста/ответов, согласование, резервирование и однократный вызов CLI, запись исхода | Написание письма из фактов, проверка живого профиля/квоты, получение разрешения, разбор ответа сервиса |
-| job-track | Списки/история/статусы/Markdown; заполнение prompt для расписания | Интерпретация сообщения кандидата, создание задачи в планировщике после запроса |
+| job-track | Списки/история/статусы/Markdown, integrity/recovery, backup/restore, privacy-команды; заполнение prompt для расписания | Интерпретация сообщения кандидата, создание задачи в планировщике после запроса |
 
 Технические функции: `profile.mjs`, `resume.mjs`, `extract-resume.mjs`, `commands.mjs`;
 история и защита отправки переиспользуют `tracker.mjs` и `send-packet.mjs`.
@@ -129,3 +129,29 @@ schedule.json: `{"frequency":"По будням в 09:00","timezone":"Europe/Ber
 materials/scheduled-search.md, а не включённая задача; auto-разрешение не выдаётся.
 Нужен --workspace с установленным шаблоном, чтобы prompt не ссылался на временный
 кеш npx. Планировщик выбирает агент по явному запросу пользователя.
+
+## Целостность, резервирование и приватность
+
+```text
+npx jobhunt-kit doctor
+npx jobhunt-kit recover inspect
+npx jobhunt-kit recover apply --input recovery.json
+npx jobhunt-kit recover packet <attempt_id>
+npx jobhunt-kit backup ../jobhunt-backup
+npx jobhunt-kit backup-verify ../jobhunt-backup
+npx jobhunt-kit restore --input restore.json
+npx jobhunt-kit privacy map
+npx jobhunt-kit privacy export ../jobhunt-private-export
+npx jobhunt-kit privacy redact --input redact.json
+npx jobhunt-kit privacy purge --input purge.json
+```
+
+`doctor` проверяет JSON Schema, SQLite integrity/foreign keys, активный run,
+неразрешённые attempts и незавершённые файловые операции. Recovery ничего не угадывает:
+для run нужны id/status/reason, для attempt — slug/outcome/evidence.
+
+Restore требует `{"source":"...","confirmation":"RESTORE VERIFIED JOBHUNT BACKUP"}`
+и перед заменой создаёт автоматический сырой pre-restore quarantine-снимок. Redact требует
+`REDACT LOCAL JOBHUNT PII` и массив dotted profile fields. Purge требует фразу
+`PURGE LOCAL JOBHUNT DATA`, scopes и отдельный backup_directory; удаление без
+проверяемой резервной копии не выполняется.

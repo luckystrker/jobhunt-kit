@@ -1,0 +1,80 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "jobhunt-kit/profile",
+  "type": "object",
+  "required": ["schema_version", "confirmed_at", "identity", "search", "languages", "experience", "education", "skills", "achievements", "evidence", "answers", "availability", "writing", "hirify_profile_id", "resume"],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "confirmed_at": { "type": ["string", "null"], "format": "date-time" },
+    "identity": {
+      "type": "object",
+      "required": ["name", "email", "phone", "city", "country", "timezone", "contact_links"],
+      "properties": {
+        "name": { "type": ["string", "null"] }, "email": { "type": ["string", "null"] },
+        "phone": { "type": ["string", "null"] }, "city": { "type": ["string", "null"] },
+        "country": { "type": ["string", "null"] }, "timezone": { "type": ["string", "null"] },
+        "contact_links": { "type": "array", "items": { "type": "string" } }
+      },
+      "additionalProperties": false
+    },
+    "search": {
+      "type": "object",
+      "required": ["roles", "levels", "countries", "work_modes", "employment_types", "industries", "excluded_companies", "excluded_keywords", "work_authorization", "hard_constraints", "preferences", "feed_ids", "queries", "salary"],
+      "properties": {
+        "roles": { "$ref": "#/$defs/strings" }, "levels": { "$ref": "#/$defs/strings" },
+        "countries": { "$ref": "#/$defs/strings" }, "work_modes": { "$ref": "#/$defs/strings" },
+        "employment_types": { "$ref": "#/$defs/strings" }, "industries": { "$ref": "#/$defs/strings" },
+        "excluded_companies": { "$ref": "#/$defs/strings" }, "excluded_keywords": { "$ref": "#/$defs/strings" },
+        "work_authorization": { "$ref": "#/$defs/strings" }, "hard_constraints": { "$ref": "#/$defs/strings" },
+        "preferences": { "$ref": "#/$defs/strings" }, "feed_ids": { "type": "array", "items": { "type": ["string", "integer"] } },
+        "queries": { "$ref": "#/$defs/strings" },
+        "relocation": {}, "travel": {}, "working_hours": {}, "sponsorship": {},
+        "unknown_salary": { "type": "string" }, "unknown_critical_requirement": { "type": "string" },
+        "salary": {
+          "type": "object",
+          "required": ["min", "target", "currency", "period", "tax_basis"],
+          "properties": {
+            "min": { "type": ["number", "null"], "minimum": 0 }, "target": { "type": ["number", "null"], "minimum": 0 },
+            "currency": { "type": ["string", "null"] }, "period": { "type": ["string", "null"] }, "tax_basis": { "type": ["string", "null"] }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "languages": { "type": "array", "items": { "$ref": "#/$defs/object" } },
+    "experience": { "type": "array", "items": { "$ref": "#/$defs/evidenced" } },
+    "education": { "type": "array", "items": { "$ref": "#/$defs/evidenced" } },
+    "skills": { "type": "array", "items": { "$ref": "#/$defs/evidenced" } },
+    "achievements": { "type": "array", "items": { "$ref": "#/$defs/evidenced" } },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "type": "object", "required": ["id", "text", "source", "confirmed"],
+        "properties": { "id": { "type": "string", "minLength": 1 }, "text": { "type": "string", "minLength": 1 }, "source": { "type": "string", "minLength": 1 }, "confirmed": { "type": "boolean" } },
+        "additionalProperties": true
+      }
+    },
+    "answers": { "type": "array", "items": { "$ref": "#/$defs/evidenced" } },
+    "availability": { "$ref": "#/$defs/object" }, "writing": { "$ref": "#/$defs/object" },
+    "hirify_profile_id": { "type": ["integer", "null"], "minimum": 1 },
+    "resume": {
+      "type": "object", "required": ["path", "sha256", "review_status"],
+      "properties": {
+        "path": { "type": ["string", "null"] }, "sha256": { "type": ["string", "null"], "pattern": "^[a-f0-9]{64}$" },
+        "review_status": { "enum": ["not_reviewed", "needs_changes", "ready"] }
+      },
+      "additionalProperties": false
+    }
+  },
+  "$defs": {
+    "strings": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+    "object": { "type": "object", "additionalProperties": true },
+    "evidenced": {
+      "type": "object",
+      "properties": { "evidence_ids": { "type": "array", "items": { "type": "string", "minLength": 1 } } },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": false
+}

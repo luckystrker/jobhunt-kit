@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { copyFileSync, existsSync, lstatSync, mkdirSync, readFileSync, readdirSync, writeFileSync, realpathSync } from 'node:fs';
-import { dirname, join, relative, resolve } from 'node:path';
+import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { spawnSync } from 'node:child_process';
 import { homedir } from 'node:os';
@@ -11,6 +11,10 @@ const SOURCE = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const roots = ['bin', 'installer-assets', 'plugins/jobhunt-kit', 'scripts', 'tests',
   'AGENTS.md', 'CLAUDE.md', 'README.md', 'package.json',
   '.agents/plugins/marketplace.json', '.claude-plugin/marketplace.json'];
+export function pathInside(parent, child, pathApi = { relative, isAbsolute, sep }) {
+  const delta = pathApi.relative(parent, child);
+  return delta === '' || (!pathApi.isAbsolute(delta) && delta !== '..' && !delta.startsWith(`..${pathApi.sep}`));
+}
 function collect(path) {
   const stat = lstatSync(path);
   if (stat.isSymbolicLink()) throw new Error(`Symlink in template: ${path}`);
@@ -33,7 +37,7 @@ export function install(destination, { source = SOURCE, installDependencies = tr
   if (scope === 'global' && !agents.length) throw new Error('Global installation requires at least one agent');
   const target = resolve(scope === 'global' ? home : destination);
   source = resolve(source);
-  if (target === source || !relative(source, target).startsWith('..')) throw new Error('Choose a destination outside the installer package');
+  if (pathInside(source, target)) throw new Error('Choose a destination outside the installer package');
   const files = new Map();
   if (scope === 'project') {
     for (const root of roots) for (const path of collect(join(source, root))) files.set(relative(source, path), path);
@@ -94,7 +98,7 @@ export async function main(args) {
     return;
   }
   if (args.length === 0 || args.includes('--help') || args.includes('-h')) {
-    console.log('Usage: jobhunt-kit <command> [arguments] [--workspace dir | --data dir]\n\ninstall [directory]              Choose agents and install (default: ./my-jobhunt)\n  --agents codex,cursor,...      Select agents (or all); --providers is an alias\n  agents                        List supported agents\n  --scope project|global        Workspace skills or user-wide skills\n  --yes, -y                     Use detected agents and project scope\ninit <directory>                 Alias with an explicit destination\nprofile init|show|check          Initialize/view/validate local profile\nprofile save --input file        Save profile and clear confirmation\nprofile confirm --note text      Record explicit candidate confirmation\nresume [file]                   Import file, fingerprint and mechanical checks\nresume check|reviewed            Inspect file / record agent review (--input file)\nsearch [plan]                   Prepare context for agent; no live search\nsearch start|event|record|finish  Persist search operations (--input file)\napply preview|export|begin slug  Review/export/reserve application\napply prepare|approve|send|finish|resolve --input file\ntrack list|show slug|status slug --input file\nhistory | runs | report          Inspect history or generate Markdown report\npolicy show|set --input file     Inspect/set application policy\nschedule --input file            Generate scheduler prompt; does not schedule\ndoctor                          Check local setup without network\n\nNode.js 24+ required. Default data: ./local/jobhunt-kit. Only apply send performs a live application call.');
+    console.log('Usage: jobhunt-kit <command> [arguments] [--workspace dir | --data dir]\n\ninstall [directory]              Choose agents and install (default: ./my-jobhunt)\n  --agents codex,cursor,...      Select agents (or all); --providers is an alias\n  agents                        List supported agents\n  --scope project|global        Workspace skills or user-wide skills\n  --yes, -y                     Use detected agents and project scope\ninit <directory>                 Alias with an explicit destination\nprofile init|show|check          Initialize/view/validate local profile\nprofile save --input file        Save profile and clear confirmation\nprofile confirm --note text      Record explicit candidate confirmation\nresume [file]                   Import file, fingerprint and mechanical checks\nresume check|reviewed            Inspect file / record agent review (--input file)\nsearch [plan]                   Prepare context for agent; no live search\nsearch start|event|record|finish  Persist search operations (--input file)\napply preview|export|begin slug  Review/export/reserve application\napply prepare|approve|send|finish|resolve --input file\ntrack list|show slug|status slug --input file\nhistory | runs | report          Inspect history or generate Markdown report\npolicy show|set --input file     Inspect/set application policy\nschedule --input file            Generate scheduler prompt; does not schedule\nbackup/backup-verify <directory> Create or verify a local backup\nrestore --input file            Restore after exact typed confirmation\nrecover inspect|apply|packet    Inspect, resolve, or recreate an attempt packet\nprivacy map|export|redact|purge Inspect, export or remove local PII\ndoctor                          Check schemas, database and recovery state without network\n\nNode.js 24+ required. Default data: ./local/jobhunt-kit. Only apply send performs a live application call.');
     return;
   }
   if (!['init', 'install'].includes(args[0])) {

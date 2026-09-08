@@ -1,19 +1,16 @@
-import { readFileSync, writeFileSync, existsSync, renameSync } from 'node:fs';
-import { join } from 'node:path';
-import { randomUUID } from 'node:crypto';
+import { existsSync } from 'node:fs';
+import { dirname, join } from 'node:path';
 import { Tracker } from './tracker.mjs';
+import { atomicWriteJSON, readBytes, readJSON as safeReadJSON, sha256 } from './files.mjs';
+import { schemaErrors } from './validation.mjs';
 
-export const readJSON = path => JSON.parse(readFileSync(path, 'utf8').replace(/^\uFEFF/, ''));
-export function writeJSON(path, value) {
-  const temporary = `${path}.${randomUUID()}.tmp`;
-  writeFileSync(temporary, JSON.stringify(value, null, 2) + '\n');
-  renameSync(temporary, path);
-}
+export const readJSON = path => safeReadJSON(path);
+export function writeJSON(path, value, base = dirname(path)) { atomicWriteJSON(path, value, { base }); }
 const filled = value => typeof value === 'string' && value.trim().length > 0;
 export function validateProfile(p) {
-  const errors = [];
+  const errors = schemaErrors('profile', p);
   const warnings = [];
-  if (!p || typeof p !== 'object' || Array.isArray(p)) return { valid: false, errors: ['Profile must be an object'], warnings };
+  if (!p || typeof p !== 'object' || Array.isArray(p)) return { valid: false, errors, warnings };
   if (p.schema_version !== 1) errors.push('schema_version must be 1');
   for (const field of ['identity', 'search', 'resume', 'availability', 'writing']) {
     if (!p[field] || typeof p[field] !== 'object' || Array.isArray(p[field])) errors.push(`${field} must be an object`);
@@ -53,27 +50,33 @@ export function saveProfile(dir, input) {
   if (!check.valid) throw new Error(check.errors.join('; '));
   const file = join(dir, 'profile.json');
   if (!existsSync(file)) throw new Error('Run profile init first');
-  const previous = readJSON(file);
   const next = { ...input, confirmed_at: null };
   const store = new Tracker(dir);
   try {
-    store.event('profile_saved', { previous, next });
-    writeJSON(file, next);
+    const previousBytes = readBytes(file, { base: dir });
+    const previous = JSON.parse(previousBytes.toString('utf8').replace(/^\uFEFF/, ''));
+    const changed_fields = [...new Set([...Object.keys(previous), ...Object.keys(next)])]
+      .filter(key => JSON.stringify(previous[key]) !== JSON.stringify(next[key]));
+    store.writeManagedJSON('profile.json', next, { expectedSha256: sha256(previousBytes), eventKind: 'profile_saved', eventPayload: { changed_fields } });
     return { saved: true, confirmation_required: true, check };
   } finally { store.close(); }
 }
 export function confirmProfile(dir, note) {
   if (!filled(note)) throw new Error('Explicit user confirmation note required');
   const file = join(dir, 'profile.json');
-  const profile = readJSON(file);
-  const check = validateProfile(profile);
-  if (!check.valid) throw new Error(check.errors.join('; '));
-  profile.confirmed_at = new Date().toISOString();
   const store = new Tracker(dir);
   try {
-    writeJSON(file, profile);
+    const profileBytes = readBytes(file, { base: dir });
+    const profile = JSON.parse(profileBytes.toString('utf8').replace(/^\uFEFF/, ''));
+    const check = validateProfile(profile);
+    if (!check.valid) throw new Error(check.errors.join('; '));
+    profile.confirmed_at = new Date().toISOString();
+    const profileHash = serializedHash(profile);
+    store.writeManagedJSON('profile.json', profile, { expectedSha256: sha256(profileBytes), eventKind: 'profile_confirmed',
+      eventPayload: { user_confirmation: note, profile_hash: profileHash } });
     const result = store.profile();
-    store.event('profile_confirmed', { user_confirmation: note, profile_hash: result.hash });
     return { confirmed_at: profile.confirmed_at, hash: result.hash, warnings: check.warnings };
   } finally { store.close(); }
 }
+
+function serializedHash(value) { return sha256(JSON.stringify(value)); }

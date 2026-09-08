@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "jobhunt-kit/status",
+  "type": "object",
+  "required": ["slug", "status", "note"],
+  "properties": {
+    "slug": { "type": "string", "minLength": 1 },
+    "status": { "enum": ["dismissed", "needs_user", "submitted_external", "interview", "rejected", "withdrawn", "offer", "accepted", "declined"] },
+    "note": { "type": "string", "minLength": 1 }
+  },
+  "additionalProperties": true
+}

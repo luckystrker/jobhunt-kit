@@ -1,5 +1,5 @@
 import { parseArgs } from 'node:util';
-import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs';
+import { readFileSync, existsSync, mkdirSync } from 'node:fs';
 import { resolve, join, dirname, basename } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
@@ -8,27 +8,36 @@ import { readJSON, writeJSON, validateProfile, saveProfile, confirmProfile } fro
 import { importResume, checkResume, recordResumeReview } from './resume.mjs';
 import { cliPath } from './hirify.mjs';
 import { sendPacket } from './send-packet.mjs';
+import { backupData, privacyMap, purgeData, redactData, restoreData, verifyBackup } from './maintenance.mjs';
+import { atomicWrite, atomicWriteJSON, localPath } from './files.mjs';
+import { validateSchema } from './validation.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const required = (value, name) => { if (!value) throw new Error(`${name} required`); return value; };
 function using(dir, fn) { const s = new Tracker(dir); try { return fn(s); } finally { s.close(); } }
+function persistAttemptPacket(dir, store, attemptId) {
+  const packet = store.attemptPacket(attemptId);
+  const path = localPath(dir, `materials/attempt-${attemptId}.json`);
+  atomicWriteJSON(path, packet, { base: dir });
+  return { packet_path: path, attempt_id: attemptId, sent: false };
+}
 function exportDraft(dir, job) {
   if (!job.draft) throw new Error('Prepare a draft first');
   const version = createHash('sha256').update(JSON.stringify(job.draft)).digest('hex').slice(0, 16);
   const folder = join(dir, 'materials', `application-${job.id}-${version}`);
   mkdirSync(folder, { recursive: true });
-  writeFileSync(join(folder, 'cover-letter.txt'), job.draft.cover_letter);
+  atomicWrite(join(folder, 'cover-letter.txt'), job.draft.cover_letter, { base: dir });
   writeJSON(join(folder, 'answers.json'), job.draft.answers || []);
   writeJSON(join(folder, 'draft.json'), job.draft);
   const destination = job.payload.apply_url || job.payload.original_url || job.payload.url;
-  writeFileSync(join(folder, 'handoff.md'), [
+  atomicWrite(join(folder, 'handoff.md'), [
     '# Материалы отклика', '', `Вакансия: ${job.payload.title}`, `Ссылка: ${destination}`, '',
     `Маршрут: ${job.payload.route}. Статус: ${job.status}.`,
     'Письмо: cover-letter.txt. Ответы: answers.json. Полный снимок: draft.json.', '',
     '## Требует действия', ...(job.draft.unresolved || []).map(x => `- ${x}`), '',
     job.payload.route === 'external' ? 'Отклик отправляет пользователь. Если ссылка на форму ещё не раскрыта, сначала получить её через Hirify reveal.' : 'Перед отправкой проверить профиль Hirify и текущую квоту; требуется действующее согласование.',
     '', 'Экспорт файлов не отправляет отклик.'
-  ].join('\n'));
+  ].join('\n'), { base: dir });
   return { directory: folder, handoff: join(folder, 'handoff.md'), sent: false };
 }
 function searchContext(dir, workspace) {
@@ -37,6 +46,7 @@ function searchContext(dir, workspace) {
     const validation = validateProfile(p.profile);
     if (!validation.valid) throw new Error(validation.errors.join('; '));
     const policy = readJSON(join(dir, 'policy.json'));
+    validateSchema('policy', policy);
     for (const k of ['target', 'max_cards', 'max_reads', 'max_reveals', 'max_minutes']) {
       if (!Number.isInteger(policy.search?.[k]) || policy.search[k] < (k === 'max_reveals' ? 0 : 1)) throw new Error(`Invalid search budget: ${k}`);
     }
@@ -50,7 +60,7 @@ function searchContext(dir, workspace) {
     const task = join(dir, 'materials', 'search-task.md');
     const localPlugin = join(workspace, 'plugins', 'jobhunt-kit');
     const plugin = existsSync(join(localPlugin, 'skills', 'job-search', 'SKILL.md')) ? localPlugin : ROOT;
-    writeFileSync(task, `Use job-search at ${join(plugin, 'skills', 'job-search', 'SKILL.md')}.\nRead ${path} and ${join(dir, 'profile.json')}.\nCheck live Hirify quotas and filter guide, preview filters, then search. Record runs and observations using the CLI.\nNo live search has been performed by this context command.\n`);
+    atomicWrite(task, `Use job-search at ${join(plugin, 'skills', 'job-search', 'SKILL.md')}.\nRead ${path} and ${join(dir, 'profile.json')}.\nCheck live Hirify quotas and filter guide, preview filters, then search. Record runs and observations using the CLI.\nNo live search has been performed by this context command.\n`, { base: dir });
     return { ...context, context_path: path, task_path: task };
   });
 }
@@ -69,7 +79,7 @@ function scheduleTemplate(dir, workspace, input) {
     '<абсолютный workspace>': workspace, '<абсолютный путь плагина>': plugin,
     '<абсолютный путь локальных данных>': dir, '<search / prepare / auto>': input.mode })) prompt = prompt.replaceAll(key, String(value));
   const path = join(dir, 'materials', 'scheduled-search.md');
-  writeFileSync(path, prompt);
+  atomicWrite(path, prompt, { base: dir });
   return { path, scheduled: false, auto_permission_granted: false, next: 'Review prompt and create a task using your agent scheduler' };
 }
 export function runCommand(args, { cwd = process.cwd(), transport } = {}) {
@@ -85,12 +95,29 @@ export function runCommand(args, { cwd = process.cwd(), transport } = {}) {
     let cli; try { cli = { available: true, path: cliPath(dir), version: '0.4.5' }; }
     catch (e) { cli = { available: false, reason: e.message }; }
     const initialized = existsSync(join(dir, 'profile.json'));
+    let integrity = null;
+    let profile = null;
+    if (initialized) {
+      try { integrity = using(dir, store => store.integrity()); }
+      catch (error) { integrity = { database_ok: false, error: error.message }; }
+      try { profile = validateProfile(readJSON(join(dir, 'profile.json'))); }
+      catch (error) { profile = { valid: false, errors: [error.message], warnings: [] }; }
+    }
     return { node: process.versions.node, workspace, data: dir, initialized, cli,
-      profile: initialized ? validateProfile(readJSON(join(dir, 'profile.json'))) : null, network_checked: false,
+      profile, integrity, network_checked: false,
       next: initialized ? 'profile check' : 'profile init' };
   }
   if (command === 'profile' && argument) throw new Error('Unexpected profile argument; use --input or --note');
   if (command === 'profile' && action === 'init') return initData(dir);
+  if (command === 'backup-verify') {
+    if (!action || argument) throw new Error('backup-verify requires one backup directory');
+    return verifyBackup(resolve(cwd, action));
+  }
+  if (command === 'restore') {
+    if (action || argument) throw new Error('restore uses --input with source and confirmation');
+    const request = input();
+    return restoreData(dir, resolve(cwd, required(request.source, 'source')), request.confirmation);
+  }
   if (!existsSync(join(dir, 'profile.json'))) throw new Error(`No profile at ${dir}. Run profile init first.`);
   if (command === 'profile') {
     if (argument) throw new Error('Unexpected profile argument; use --input or --note');
@@ -115,7 +142,6 @@ export function runCommand(args, { cwd = process.cwd(), transport } = {}) {
     const methods = { start: 'runStart', event: 'runEvent', record: 'put', finish: 'runFinish' };
     if (!methods[action]) throw new Error('search: plan | start | event | record | finish (JSON via --input)');
     return using(dir, s => {
-      if (action === 'start' && s.runs().some(r => r.status === 'running')) throw new Error('Finish or resolve the previous running search before starting another');
       return s[methods[action]](input());
     });
   }
@@ -125,9 +151,8 @@ export function runCommand(args, { cwd = process.cwd(), transport } = {}) {
     if (action === 'export') return using(dir, s => exportDraft(dir, s.job(required(argument, 'slug'))));
     if (action === 'begin') return using(dir, s => {
       const packet = s.begin({ slug: required(argument, 'slug') });
-      const path = join(dir, 'materials', `attempt-${packet.attempt_id}.json`);
-      writeJSON(path, packet);
-      return { packet_path: path, attempt_id: packet.attempt_id, sent: false };
+      try { return persistAttemptPacket(dir, s, packet.attempt_id); }
+      catch (error) { throw new Error(`Attempt reserved but packet write failed. Recover with: recover packet ${packet.attempt_id}. ${error.message}`); }
     });
     const methods = { prepare: 'prepare', approve: 'approve', finish: 'finish', resolve: 'resolveUnknown' };
     if (methods[action]) return using(dir, s => s[methods[action]](input()));
@@ -145,6 +170,27 @@ export function runCommand(args, { cwd = process.cwd(), transport } = {}) {
   if (['history', 'report', 'runs'].includes(command)) {
     if (action) throw new Error(`${command} takes no positional arguments`);
     return using(dir, s => s[command]());
+  }
+  if (command === 'backup') {
+    if (!action || argument) throw new Error('backup requires one destination directory');
+    return backupData(dir, resolve(cwd, action));
+  }
+  if (command === 'recover') {
+    if (!action || action === 'inspect') return using(dir, store => store.integrity());
+    if (action === 'apply') return using(dir, store => store.recover(input()));
+    if (action === 'packet') return using(dir, store => persistAttemptPacket(dir, store, required(argument, 'attempt_id')));
+    throw new Error('recover: inspect | apply --input file | packet <attempt_id>');
+  }
+  if (command === 'privacy') {
+    if (!action || action === 'map') return privacyMap(dir);
+    if (action === 'export') return backupData(dir, resolve(cwd, required(argument, 'destination')));
+    if (['redact', 'purge'].includes(action) && argument) throw new Error(`privacy ${action} uses --input`);
+    if (action === 'redact') return redactData(dir, input());
+    if (action === 'purge') {
+      const request = input();
+      return purgeData(dir, { ...request, backup_directory: resolve(cwd, required(request.backup_directory, 'backup_directory')) });
+    }
+    throw new Error('privacy: map | export <directory> | redact/purge --input file');
   }
   if (command === 'policy') {
     if (argument) throw new Error('Unexpected policy argument');

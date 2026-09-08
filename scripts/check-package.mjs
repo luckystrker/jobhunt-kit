@@ -33,6 +33,13 @@ const codex = load(join(root, '.codex-plugin/plugin.json'));
 const claude = load(join(root, '.claude-plugin/plugin.json'));
 assert.equal(codex.name, 'jobhunt-kit'); assert.equal(claude.name, codex.name);
 assert.equal(codex.version, claude.version);
+assert.equal(load('package.json').version, codex.version);
+assert.equal(load('plugins/jobhunt-kit/package.json').version, codex.version);
+assert.equal(load('.claude-plugin/marketplace.json').plugins[0].version, codex.version);
+for (const name of ['profile', 'policy', 'vacancy', 'draft', 'finish', 'status']) {
+  const schema = load(join(root, 'schemas', `${name}.schema.json`));
+  assert.equal(schema.$schema, 'https://json-schema.org/draft/2020-12/schema');
+}
 for (const file of ['.agents/plugins/marketplace.json', '.claude-plugin/marketplace.json']) {
   const market = load(file);
   for (const plugin of market.plugins) {

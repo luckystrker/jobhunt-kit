@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "jobhunt-kit/vacancy",
+  "type": "object",
+  "required": ["run_id", "slug", "title", "url", "route", "match"],
+  "properties": {
+    "run_id": { "type": "string", "minLength": 1 }, "slug": { "type": "string", "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]*$" },
+    "title": { "type": "string", "minLength": 1 }, "company": { "type": ["string", "null"] },
+    "url": { "type": "string", "format": "uri" }, "original_url": { "type": "string", "format": "uri" },
+    "apply_url": { "type": "string", "format": "uri" }, "route": { "enum": ["hosted", "external", "unknown"] },
+    "description": { "type": "string" }, "read_at": { "type": "string", "format": "date-time" },
+    "match": {
+      "type": "object", "required": ["verdict"],
+      "properties": {
+        "verdict": { "enum": ["unreviewed", "suitable", "review", "rejected"] },
+        "reasons": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+        "requirements": {
+          "type": "array", "items": {
+            "type": "object", "required": ["requirement", "result", "evidence"],
+            "properties": { "requirement": { "type": "string", "minLength": 1 }, "result": { "enum": ["pass", "fail", "unknown"] }, "evidence": { "type": "string" } },
+            "additionalProperties": true
+          }
+        }
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true
+}
